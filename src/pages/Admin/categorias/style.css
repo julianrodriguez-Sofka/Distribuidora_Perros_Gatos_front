@@ -1,0 +1,21 @@
+.admin-categorias-page {
+  width: 100%;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.coming-soon {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
