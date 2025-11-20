@@ -68,3 +68,40 @@ base de datos (lectura)
   ```sql
   UPDATE inventario SET cantidad = cantidad - 1
   WHERE producto_id = $1 AND cantidad > 0;
+
+   Estructura de Archivos en Backend (FastAPI)
+   backend/
+├── app/
+│   ├── main.py
+│   ├── routes/
+│   │   └── productos.py        # ← Endpoint /api/v1/productos/catalogo
+│   ├── crud/
+│   │   └── producto.py         # Lógica de consulta a BD
+│   └── models/
+│       └── producto.py         # Pydantic response model
+└── uploads/products/           # Volumen Docker (solo escritura en otras HUs)
+
+🧪 Ejemplo de Respuesta Exitosa
+{
+  "Perros": {
+    "Alimento": [
+      {
+        "id": "1",
+        "nombre": "Alimento Premium para Perros",
+        "precio": 24.99,
+        "peso": 1500,
+        "stock": 0,
+        "categoria": "Perros",
+        "subcategoria": "Alimento",
+        "imagenUrl": "/uploads/products/alimento-perro.webp"
+      }
+    ],
+    "Accesorios": [],
+    "Productos de aseo": []
+  },
+  "Gatos": {
+    "Alimento": [],
+    "Accesorios": [],
+    "Productos de aseo": []
+  }
+}
