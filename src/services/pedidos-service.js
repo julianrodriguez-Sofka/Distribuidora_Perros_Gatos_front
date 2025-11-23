@@ -15,19 +15,19 @@ export const pedidosService = {
 
   // Get order by id
   async getOrderById(id) {
-    const response = await apiClient.get(`/api/pedidos/${id}`);
+    const response = await apiClient.get(`/pedidos/${id}`);
     return response.data;
   },
 
   // Admin: Get all orders
   async getAllOrders() {
-    const response = await apiClient.get('/api/admin/pedidos');
+    const response = await apiClient.get('/admin/pedidos');
     return response.data;
   },
 
   // Admin: Update order status
   async updateOrderStatus(id, status) {
-    const response = await apiClient.patch(`/api/admin/pedidos/${id}`, { estado: status });
+    const response = await apiClient.patch(`/admin/pedidos/${id}`, { estado: status });
     return response.data;
   },
 };

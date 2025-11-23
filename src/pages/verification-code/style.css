@@ -1,0 +1,65 @@
+/* Styles for Verification Code page */
+.verification-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.verification-container {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 8px 24px rgba(13, 27, 62, 0.06);
+}
+
+.verification-title {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.verification-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.verification-input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.verification-button {
+  margin-top: 8px;
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verification-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.verification-link {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.verification-button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

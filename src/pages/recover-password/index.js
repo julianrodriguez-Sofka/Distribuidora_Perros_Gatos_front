@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { authService } from "../../services/auth-service";
 import { useToast } from "../../hooks/use-toast";
+import './style.css';
 
 const RecoverPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -26,16 +27,16 @@ const RecoverPasswordPage = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h1 className="login-title">Recuperar Contraseña</h1>
-        <form onSubmit={handleSubmit} className="login-form" noValidate>
-          <label htmlFor="email" className="login-label">Correo electrónico</label>
+    <div className="recover-page">
+      <div className="recover-container">
+        <h1 className="recover-title">Recuperar Contraseña</h1>
+        <form onSubmit={handleSubmit} className="recover-form" noValidate>
+          <label htmlFor="email" className="recover-label">Correo electrónico</label>
           <input
             type="email"
             id="email"
             name="email"
-            className="login-input"
+            className="recover-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -45,14 +46,14 @@ const RecoverPasswordPage = () => {
           />
           <button
             type="submit"
-            className="login-button"
+            className="recover-button"
             disabled={loading}
           >
             {loading ? "Enviando..." : "Enviar código de verificación"}
           </button>
         </form>
-        <div className="login-links">
-          <Link to="/login" className="login-link">
+        <div className="recover-links">
+          <Link to="/login" className="recover-link">
             ¿Ya tienes cuenta? Inicia sesión
           </Link>
         </div>

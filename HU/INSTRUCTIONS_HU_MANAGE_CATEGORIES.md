@@ -85,7 +85,7 @@
   - Categoría padre: `"Perros"` (ID válido)
   - Nombre: `"Juguetes"` (único bajo `"Perros"`)
 - **Acciones**:
-  1. Enviar a `POST /api/admin/categorias` con:
+  1. Enviar a `POST /admin/categorias` con:
      ```json
      {
        "nombre": "Juguetes",
@@ -128,7 +128,7 @@
 - **Enfoque preferido para MVP**: **ocultar botón de eliminar siempre**. Solo permitir **edición de nombre**.
 
 ### ✏️ Edición de nombre (siempre permitida)
-- Endpoint: `PATCH /api/admin/categorias/{id}`
+- Endpoint: `PATCH /admin/categorias/{id}`
 - Payload: `{ "nombre": "Nuevo nombre" }`
 - Validación: el nuevo nombre debe ser único en su contexto (según reglas de AC 3).
 - Si éxito → actualizar en UI + Toast de confirmación.

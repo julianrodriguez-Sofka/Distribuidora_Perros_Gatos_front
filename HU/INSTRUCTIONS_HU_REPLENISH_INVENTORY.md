@@ -63,7 +63,7 @@
   - Producto seleccionado.
   - Cantidad ingresada: entero **positivo** (≥ 1).
 - **Acciones**:
-  1. Enviar a `PATCH /api/admin/inventario/{productoId}` con:
+  1. Enviar a `PATCH /admin/inventario/{productoId}` con:
      ```json
      {
        "cantidadAgregada": 25,

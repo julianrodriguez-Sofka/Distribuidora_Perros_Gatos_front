@@ -1,0 +1,69 @@
+/* Styles for Recover Password page */
+.recover-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.recover-container {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 6px 18px rgba(13, 27, 62, 0.06);
+}
+
+.recover-title {
+  margin: 0 0 16px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.recover-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recover-label {
+  font-size: 14px;
+  color: #374151;
+}
+
+.recover-input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.recover-button {
+  margin-top: 8px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.recover-links {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.recover-link {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.recover-button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

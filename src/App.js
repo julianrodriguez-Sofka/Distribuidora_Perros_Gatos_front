@@ -6,6 +6,7 @@ import { AdminLayout } from './components/layout/admin-layout';
 import { ProtectedRoute } from './components/layout/protected-route';
 import { HomePage } from './pages/home';
 import RecoverPasswordPage from './pages/recover-password';
+import VerificationCodePage from './pages/verification-code';
 import { LoginPage } from './pages/login';
 import { RegisterPage } from './pages/register';
 import { CartPage } from './pages/cart';
@@ -120,6 +121,14 @@ function App() {
         element={
           <MainLayout>
             {isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/verification-code"
+        element={
+          <MainLayout>
+            <VerificationCodePage />
           </MainLayout>
         }
       />

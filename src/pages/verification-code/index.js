@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { verifyEmailCode, resendVerificationCode } from "../../services/auth-service";
+import { authService } from "../../services/auth-service";
 import { useToast } from "../../hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
+import './style.css';
 
 const VerificationCodePage = () => {
   const location = useLocation();
@@ -21,56 +22,66 @@ const VerificationCodePage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await verifyEmailCode(email, code);
-      showToast("Email verified successfully.", "success");
+      await authService.verifyEmail(email, code);
+      showToast("Correo verificado correctamente.", "success");
       navigate("/login");
     } catch (error) {
-      showToast(error?.message || "Invalid code or expired.", "error");
+      showToast(error?.message || "Código inválido o expirado.", "error");
     } finally {
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
+    if (!email) {
+      showToast("Por favor ingresa tu correo primero.", "warning");
+      return;
+    }
     setLoading(true);
     try {
-      await resendVerificationCode(email);
-      showToast("Verification code resent.", "success");
+      await authService.resendVerificationCode(email);
+      showToast("Código reenviado. Revisa tu correo.", "success");
     } catch (error) {
-      showToast(error?.message || "Error resending code.", "error");
+      showToast(error?.message || "No se pudo reenviar el código.", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="verification-code-container">
-      <h2>Verify Email</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <label htmlFor="code">Verification Code</label>
-        <input
-          type="text"
-          id="code"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          required
-          maxLength={6}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Verifying..." : "Verify"}
-        </button>
-      </form>
-      <button onClick={handleResend} disabled={loading}>
-        Resend Code
-      </button>
+    <div className="verification-page">
+      <div className="verification-container">
+        <h2 className="verification-title">Verificar correo</h2>
+        <form className="verification-form" onSubmit={handleSubmit}>
+          <label htmlFor="email">Correo electrónico</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="verification-input"
+            required
+          />
+          <label htmlFor="code">Código de verificación</label>
+          <input
+            type="text"
+            id="code"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            className="verification-input"
+            required
+            maxLength={6}
+          />
+          <button type="submit" className="verification-button" disabled={loading}>
+            {loading ? "Verificando..." : "Verificar"}
+          </button>
+        </form>
+        <div className="verification-actions">
+          <button onClick={handleResend} className="verification-button" disabled={loading}>
+            Reenviar código
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
