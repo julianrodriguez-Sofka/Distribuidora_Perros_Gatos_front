@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Button } from '../../ui/index';
 import { useAuth } from '../../../hooks/use-auth';
-import { useCart } from '../../../hooks/use-cart';
+import { useCartModule } from '../../../modules/cart/context/CartContext';
 import './style.css';
 
 export const Header = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
-  const { itemCount } = useCart();
+  const { itemCount } = useCartModule();
   const isAdmin = user?.rol === 'admin';
 
   const handleLogout = () => {
@@ -32,16 +32,17 @@ export const Header = () => {
         </nav>
 
         <div className="header-actions">
+          <Link to="/carrito" className="header-cart-link" aria-label="Carrito de compras">
+            🛒 Carrito
+            {itemCount > 0 && (
+              <span className="header-cart-badge" aria-label={`${itemCount} productos en el carrito`}>
+                {itemCount}
+              </span>
+            )}
+          </Link>
+
           {isAuthenticated ? (
             <>
-              <Link to="/carrito" className="header-cart-link" aria-label="Carrito de compras">
-                🛒 Carrito
-                {itemCount > 0 && (
-                  <span className="header-cart-badge" aria-label={`${itemCount} productos en el carrito`}>
-                    {itemCount}
-                  </span>
-                )}
-              </Link>
               <span className="header-user">Hola, {user?.nombreCompleto || user?.email}</span>
               <Button variant="ghost" size="small" onClick={handleLogout}>
                 Cerrar Sesión

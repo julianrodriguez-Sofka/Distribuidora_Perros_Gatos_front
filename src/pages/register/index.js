@@ -131,8 +131,11 @@ export const RegisterPage = () => {
     setIsLoading(false);
 
     if (result.success) {
-      // Navigate to verification page or login
-      navigate('/login');
+      // Redirigir a verificación de código si el registro fue exitoso
+      toast.success('Por favor, Revisa tu bandeja de entrada para verificar tu cuenta e ingresa el código enviado');
+      setTimeout(() => {
+        navigate('/verification-code', { state: { email: formData.email } });
+      }, 1200);
     }
   };
 

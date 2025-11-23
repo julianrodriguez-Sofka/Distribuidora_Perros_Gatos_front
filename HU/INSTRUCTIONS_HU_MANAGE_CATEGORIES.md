@@ -73,7 +73,7 @@
 ### AC 1: Creación exitosa de categoría principal
 - **Entrada válida**: nombre único (ej: `"Aves"`)
 - **Acciones**:
-  1. Enviar a `POST /api/admin/categorias` con `{ "nombre": "Aves", "tipo": "categoria" }`
+  1. Enviar a `POST /admin/categorias` con `{ "nombre": "Aves", "tipo": "categoria" }`
   2. Si éxito → mostrar **Toast**: `"Categoría creada exitosamente."`
   3. Actualizar lista en UI sin recargar.
 - **Resultado**: La nueva categoría aparece en el listado y es seleccionable al crear productos.
