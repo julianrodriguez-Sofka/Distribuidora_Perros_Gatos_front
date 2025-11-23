@@ -22,12 +22,37 @@ export const AdminUsuarioDetailPage = () => {
   const loadUserData = async () => {
     try {
       setIsLoading(true);
-      const userData = await usuariosService.getUserById(id);
-      setUser(userData);
+      const userDataRaw = await usuariosService.getUserById(id);
+
+      // Backend may return { status, data } or the user object directly
+      const payload = (userDataRaw && userDataRaw.status && userDataRaw.data) ? userDataRaw.data : userDataRaw;
+
+      const u = payload || {};
+      // Map backend snake_case fields to frontend-friendly names
+      const normalized = {
+        id: u.id ?? u._id ?? String(id),
+        nombreCompleto: u.nombreCompleto || u.nombre_completo || `${u.nombre || ''} ${u.apellido || ''}`.trim() || '',
+        cedula: u.cedula || u.rut || u.cedula_identidad || '',
+        email: u.email || u.correo || u.mail || '',
+        telefono: u.telefono || u.phone || u.telefono_movil || '',
+        direccionEnvio: u.direccionEnvio || u.direccion_envio || u.direccion || '',
+        fechaRegistro: u.fecha_registro || u.created_at || u.createdAt || null,
+        ultimoLogin: u.ultimo_login || u.last_login || u.lastLogin || null,
+        rol: u.rol || u.role || u.roleName || '',
+        tienePerros: (typeof u.tienePerros !== 'undefined') ? u.tienePerros : (typeof u.tiene_perros !== 'undefined' ? u.tiene_perros : false),
+        tieneGatos: (typeof u.tieneGatos !== 'undefined') ? u.tieneGatos : (typeof u.tiene_gatos !== 'undefined' ? u.tiene_gatos : false),
+        _raw: u,
+      };
+
+      setUser(normalized);
 
       // Load user orders
       const allOrders = await pedidosService.getAllOrders();
-      const filteredOrders = allOrders.filter(order => order.clienteId === id);
+      const filteredOrders = allOrders.filter(order => {
+        // backend may return clienteId or cliente_id
+        const clienteId = order.clienteId ?? order.cliente_id ?? order.cliente ?? order.clienteId;
+        return String(clienteId) === String(normalized.id) || String(clienteId) === String(id);
+      });
       setUserOrders(filteredOrders);
     } catch (error) {
       console.error('Error loading user:', error);

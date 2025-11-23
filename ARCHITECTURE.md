@@ -74,7 +74,7 @@ base de datos (lectura)
 ├── app/
 │   ├── main.py
 │   ├── routes/
-│   │   └── productos.py        # ← Endpoint /api/v1/productos/catalogo
+│   │   └── productos.py        # ← Endpoint /api/productos/catalogo
 │   ├── crud/
 │   │   └── producto.py         # Lógica de consulta a BD
 │   └── models/

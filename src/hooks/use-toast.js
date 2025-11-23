@@ -20,6 +20,11 @@ export const useToast = () => {
     toast.show(message, type, duration);
   };
 
-  return { toasts, showToast };
+  const success = (message, duration) => showToast(message, 'success', duration);
+  const error = (message, duration) => showToast(message, 'error', duration);
+  const warning = (message, duration) => showToast(message, 'warning', duration);
+  const info = (message, duration) => showToast(message, 'info', duration);
+
+  return { toasts, showToast, success, error, warning, info };
 };
 

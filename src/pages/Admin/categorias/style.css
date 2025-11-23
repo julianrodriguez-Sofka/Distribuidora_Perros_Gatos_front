@@ -1,3 +1,12 @@
+.admin-categorias-page { padding: 16px; }
+.form-inline { display:flex; gap:8px; margin-bottom:12px; }
+.form-inline input, .form-inline select { padding:8px; border-radius:6px; border:1px solid #e6e9ee; }
+.form-inline button { padding:8px 12px; border-radius:6px; background:#0ea5a4; color:#fff; border:none; }
+.categoria-block { margin-bottom:18px; padding:12px; background:#fff; box-shadow:0 6px 18px rgba(2,6,23,0.04); border-radius:8px; }
+.categoria-header { display:flex; align-items:center; justify-content:space-between; }
+.subcategoria-list { margin-top:8px; padding-left:16px; }
+.subcategoria-list li { padding:6px 0; }
+.categoria-meta { color:#64748b; font-size:13px; }
 .admin-categorias-page {
   width: 100%;
 }

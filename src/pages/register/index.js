@@ -20,6 +20,7 @@ export const RegisterPage = () => {
     cedula: '',
     email: '',
     telefono: '',
+    direccion_envio: '',
     password: '',
     confirmPassword: '',
     tienePerros: false,
@@ -71,6 +72,10 @@ export const RegisterPage = () => {
       newErrors.telefono = 'El teléfono debe tener al menos 8 dígitos';
     }
 
+    if (!formData.direccion_envio) {
+      newErrors.direccion_envio = 'La dirección de envío es requerida';
+    }
+
     // Validate password
     if (!formData.password) {
       newErrors.password = 'La contraseña es requerida';
@@ -102,13 +107,35 @@ export const RegisterPage = () => {
     }
 
     setIsLoading(true);
-    const { confirmPassword, ...registerData } = formData;
+
+    let preferencia_mascotas = '';
+    if (formData.tienePerros && formData.tieneGatos) {
+      preferencia_mascotas = 'Ambos';
+    } else if (formData.tienePerros) {
+      preferencia_mascotas = 'Perros';
+    } else if (formData.tieneGatos) {
+      preferencia_mascotas = 'Gatos';
+    }
+
+    const registerData = {
+      email: formData.email,
+      password: formData.password,
+      nombre: formData.nombreCompleto,
+      cedula: formData.cedula,
+      telefono: formData.telefono,
+      direccion_envio: formData.direccion_envio,
+      preferencia_mascotas: preferencia_mascotas,
+    };
+
     const result = await register(registerData);
     setIsLoading(false);
 
     if (result.success) {
-      // Navigate to verification page or login
-      navigate('/login');
+      // Redirigir a verificación de código si el registro fue exitoso
+      toast.success('Por favor, Revisa tu bandeja de entrada para verificar tu cuenta e ingresa el código enviado');
+      setTimeout(() => {
+        navigate('/verification-code', { state: { email: formData.email } });
+      }, 1200);
     }
   };
 
@@ -159,6 +186,17 @@ export const RegisterPage = () => {
             onChange={handleChange}
             error={errors.telefono}
             placeholder="+56 9 1234 5678"
+            required
+            disabled={isLoading}
+          />
+
+          <Input
+            label="Dirección de envío"
+            name="direccion_envio"
+            value={formData.direccion_envio}
+            onChange={handleChange}
+            error={errors.direccion_envio}
+            placeholder="Calle 123, Ciudad"
             required
             disabled={isLoading}
           />

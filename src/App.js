@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { MainLayout } from './components/layout/main-layout';
 import { AdminLayout } from './components/layout/admin-layout';
 import { ProtectedRoute } from './components/layout/protected-route';
 import { HomePage } from './pages/home';
+import RecoverPasswordPage from './pages/recover-password';
+import VerificationCodePage from './pages/verification-code';
 import { LoginPage } from './pages/login';
 import { RegisterPage } from './pages/register';
 import { CartPage } from './pages/cart';
@@ -12,8 +14,10 @@ import { AdminPedidosPage } from './pages/Admin/pedidos';
 import { AdminUsuariosPage } from './pages/Admin/usuarios';
 import { AdminUsuarioDetailPage } from './pages/Admin/usuarios/detail';
 import { AdminProductosPage } from './pages/Admin/productos';
+import NuevoProductoPage from './pages/Admin/productos/nuevo';
+import EditarProductoPage from './pages/Admin/productos/editar';
 import { AdminCategoriasPage } from './pages/Admin/categorias';
-import { AdminCarruselPage } from './pages/Admin/carrusel';
+import AdminCarruselPage from './pages/Admin/carrusel';
 import { AdminInventarioPage } from './pages/Admin/inventario';
 import { NotFoundPage } from './pages/not-found';
 import { authService } from './services/auth-service';
@@ -23,6 +27,7 @@ import './App.css';
 
 function App() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
@@ -32,6 +37,10 @@ function App() {
         const user = await authService.getCurrentUser();
         if (user) {
           dispatch(loginSuccess(user));
+          // If the user is admin, redirect to admin products on session start
+          if (user.rol === 'admin' || user.role === 'admin') {
+            navigate('/admin/productos', { replace: true });
+          }
         }
       } catch (error) {
         // User not authenticated
@@ -52,6 +61,44 @@ function App() {
 
   return (
     <Routes>
+      <Route
+        path="/admin/productos"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminProductosPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/productos/editar/:id"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <EditarProductoPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/productos/nuevo"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <NuevoProductoPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recuperar-contrasena"
+        element={
+          <MainLayout>
+            <RecoverPasswordPage />
+          </MainLayout>
+        }
+      />
       {/* Public routes */}
       <Route
         path="/"
@@ -74,6 +121,14 @@ function App() {
         element={
           <MainLayout>
             {isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/verification-code"
+        element={
+          <MainLayout>
+            <VerificationCodePage />
           </MainLayout>
         }
       />

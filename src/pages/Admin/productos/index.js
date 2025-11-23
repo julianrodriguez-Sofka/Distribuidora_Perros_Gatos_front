@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../components/ui/index';
+import ListarProductos from './listar';
 import './style.css';
 
 export const AdminProductosPage = () => {
@@ -12,9 +14,7 @@ export const AdminProductosPage = () => {
           <Button variant="primary">Crear Nuevo Producto</Button>
         </Link>
       </div>
-      <div className="coming-soon">
-        <p>Funcionalidad en desarrollo</p>
-      </div>
+      <ListarProductos />
     </div>
   );
 };

@@ -57,7 +57,7 @@ Todo producto debe tener los siguientes campos **almacenados en la base de datos
   - Todos los campos requeridos están completos y válidos.
   - `nombre` no existe en la base de datos.
 - **Acciones**:
-  1. Enviar datos al endpoint `POST /api/admin/productos`.
+  1. Enviar datos al endpoint `POST /admin/productos`.
   2. Subir imagen a `/uploads/products/` (o simulación en memoria si es MVP).
   3. Guardar registro en base de datos.
   4. Mostrar **Toast de éxito**: `"Producto creado exitosamente"`.
@@ -115,7 +115,7 @@ Todo producto debe tener los siguientes campos **almacenados en la base de datos
    - Campos vacíos.
    - Formato de imagen (extensión y tamaño usando File API).
    - Valores numéricos > 0.
-2. **Si pasa frontend**, envía a `POST /api/admin/productos`.
+2. **Si pasa frontend**, envía a `POST /admin/productos`.
 3. **Backend** valida:
    - Nombre único (case-insensitive).
    - Categoría/subcategoría válidas.

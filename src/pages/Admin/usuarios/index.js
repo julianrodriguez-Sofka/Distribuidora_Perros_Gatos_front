@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { usuariosService } from '../../../services/usuarios-service';
@@ -11,6 +11,7 @@ export const AdminUsuariosPage = () => {
   const navigate = useNavigate();
   const { users, isLoading } = useSelector((state) => state.usuarios);
   const [searchQuery, setSearchQuery] = useState('');
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     loadUsers();
@@ -28,20 +29,50 @@ export const AdminUsuariosPage = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-    dispatch({ type: 'SET_USER_SEARCH_QUERY', payload: query });
+  const performSearch = async (query) => {
+    try {
+      dispatch({ type: 'FETCH_USERS_REQUEST' });
+      if (!query) {
+        await loadUsers();
+        return;
+      }
+      const data = await usuariosService.searchUsers(query);
+      dispatch({ type: 'FETCH_USERS_SUCCESS', payload: data });
+    } catch (error) {
+      console.error('Error searching users:', error);
+      toast.error('Error al buscar usuarios');
+    }
   };
 
-  const filteredUsers = users.filter((user) => {
+  const handleSearch = (e) => {
+    const query = e.target.value.trim();
+    setSearchQuery(query);
+    dispatch({ type: 'SET_USER_SEARCH_QUERY', payload: query });
+
+    // debounce search (300ms)
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      performSearch(query);
+    }, 300);
+  };
+
+  // Normalize users payload: API may return array or an object with nested array
+  const usersList = Array.isArray(users)
+    ? users
+    : Array.isArray(users?.data)
+    ? users.data
+    : Array.isArray(users?.usuarios)
+    ? users.usuarios
+    : [];
+
+  const filteredUsers = usersList.filter((user) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
-      user.id.toLowerCase().includes(query) ||
-      user.nombreCompleto.toLowerCase().includes(query) ||
-      user.cedula.toLowerCase().includes(query) ||
-      user.email.toLowerCase().includes(query)
+      String(user.id || '').toLowerCase().includes(query) ||
+      String(user.nombreCompleto || '').toLowerCase().includes(query) ||
+      String(user.cedula || '').toLowerCase().includes(query) ||
+      String(user.email || '').toLowerCase().includes(query)
     );
   });
 
