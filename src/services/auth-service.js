@@ -66,9 +66,21 @@ export const authService = {
   // Login
   async login(email, password) {
     const response = await apiClient.post('/auth/login', { email, password });
-    if (response.data?.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
+    // Try to persist token under common keys returned by different backends
+    const data = response.data || {};
+    const tokenCandidates = [
+      data.access_token,
+      data.token,
+      data.accessToken,
+      data.access_token ?? data.token ?? data.accessToken,
+      data.data && data.data.access_token,
+      data.data && data.data.token,
+    ];
+    const token = tokenCandidates.find(t => typeof t === 'string' && t.length > 0);
+    if (token) {
+      localStorage.setItem('access_token', token);
     }
+
     return response.data;
   },
 

@@ -26,7 +26,7 @@ const AdminCarruselPage = () => {
       const data = await carouselService.getCarousel();
       setImages(data);
     } catch (error) {
-      showToast('Error al cargar el carrusel', 'error');
+        if (!error?._toastsShown) showToast('Error al cargar el carrusel', 'error');
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const AdminCarruselPage = () => {
       fetchCarousel();
       showToast('Imagen añadida al carrusel.', 'success');
     } catch (error) {
-      showToast(error.message || 'Error al subir imagen', 'error');
+      if (!error?._toastsShown) showToast(error.message || 'Error al subir imagen', 'error');
     }
   };
 
@@ -76,7 +76,7 @@ const AdminCarruselPage = () => {
       await carouselService.deleteImage(id);
       fetchCarousel();
     } catch (error) {
-      showToast('Error al eliminar imagen', 'error');
+      if (!error?._toastsShown) showToast('Error al eliminar imagen', 'error');
     }
   };
 
@@ -97,7 +97,7 @@ const AdminCarruselPage = () => {
       fetchCarousel();
       showToast('Orden actualizado', 'success');
     } catch (error) {
-      showToast('Error al guardar el orden', 'error');
+      if (!error?._toastsShown) showToast('Error al guardar el orden', 'error');
     }
   };
 
@@ -107,7 +107,7 @@ const AdminCarruselPage = () => {
       fetchCarousel();
       showToast('Enlace actualizado', 'success');
     } catch (error) {
-      showToast('Error al actualizar enlace', 'error');
+      if (!error?._toastsShown) showToast('Error al actualizar enlace', 'error');
     }
   };
 
@@ -155,8 +155,7 @@ const AdminCarruselPage = () => {
             <tbody>
               {images.sort((a, b) => a.orden - b.orden).map(img => (
                 <tr key={img.id}>
-                  <td><img src={img.imagenUrl ? (img.imagenUrl.startsWith('http') ? img.imagenUrl : `http://localhost:8000${img.imagenUrl}`) : ''} alt="miniatura" className="thumb-img" /></td>
-                      <td><img src={typeof img.imagen_url === 'string' && img.imagen_url ? (img.imagen_url.startsWith('http') ? img.imagen_url : `http://localhost:8000${img.imagen_url}`) : '/no-image.svg'} alt="miniatura" className="thumb-img" /></td>
+                  <td><img src={typeof img.imagen_url === 'string' && img.imagen_url ? (img.imagen_url.startsWith('http') ? img.imagen_url : `http://localhost:8000${img.imagen_url}`) : '/no-image.svg'} alt="miniatura" className="thumb-img" /></td>
                   <td>
                     <input type="number" min="1" max="5" value={img.orden} onChange={e => handleOrderChange(img.id, e.target.value)} />
                   </td>

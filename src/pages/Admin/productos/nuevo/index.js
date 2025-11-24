@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import productosService from "../../../../services/productos-service";
 import { useToast } from "../../../../hooks/use-toast";
+import '../style.css';
 
 const categorias = {
   Perros: ["Alimento", "Juguetes", "Accesorios", "Higiene"],
@@ -83,57 +84,74 @@ const NuevoProductoPage = () => {
       showToast("Producto creado exitosamente", "success");
       navigate("/admin/productos");
     } catch (error) {
-      showToast(error?.message || "Error al crear producto.", "error");
+      if (!error?._toastsShown) showToast(error?.message || "Error al crear producto.", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h1 className="login-title">Crear Nuevo Producto</h1>
-        <form onSubmit={handleSubmit} className="login-form" noValidate encType="multipart/form-data">
-          <label className="login-label">Nombre del producto</label>
-          <input name="nombre" value={form.nombre} onChange={handleChange} className={`login-input${errors.nombre ? " error" : ""}`} required />
-          {errors.nombre && <span className="error-text">{errors.nombre}</span>}
+    <div className="admin-productos-listar">
+      <h2 className="page-title">Crear Nuevo Producto</h2>
+      <div style={{ marginTop: 16 }} />
+      <div className="form-producto">
+        <form onSubmit={handleSubmit} noValidate encType="multipart/form-data">
+          <div>
+            <label>Nombre del producto</label>
+            <input name="nombre" value={form.nombre} onChange={handleChange} required />
+            {errors.nombre && <span className="error-text">{errors.nombre}</span>}
+          </div>
 
-          <label className="login-label">Descripción detallada</label>
-          <textarea name="descripcion" value={form.descripcion} onChange={handleChange} className={`login-input${errors.descripcion ? " error" : ""}`} required minLength={10} />
-          {errors.descripcion && <span className="error-text">{errors.descripcion}</span>}
+          <div>
+            <label>Descripción detallada</label>
+            <textarea name="descripcion" value={form.descripcion} onChange={handleChange} required minLength={10} />
+            {errors.descripcion && <span className="error-text">{errors.descripcion}</span>}
+          </div>
 
-          <label className="login-label">Precio</label>
-          <input name="precio" type="number" step="0.01" value={form.precio} onChange={handleChange} className={`login-input${errors.precio ? " error" : ""}`} required min={0.01} />
-          {errors.precio && <span className="error-text">{errors.precio}</span>}
+          <div>
+            <label>Precio</label>
+            <input name="precio" type="number" step="0.01" value={form.precio} onChange={handleChange} required min={0.01} />
+            {errors.precio && <span className="error-text">{errors.precio}</span>}
+          </div>
 
-          <label className="login-label">Peso en gramos</label>
-          <input name="peso" type="number" value={form.peso} onChange={handleChange} className={`login-input${errors.peso ? " error" : ""}`} required min={1} />
-          <small>Ingresa el peso en gramos (ej: 500 para 500g)</small>
-          {errors.peso && <span className="error-text">{errors.peso}</span>}
+          <div>
+            <label>Peso en gramos</label>
+            <input name="peso" type="number" value={form.peso} onChange={handleChange} required min={1} />
+            <small>Ingresa el peso en gramos (ej: 500 para 500g)</small>
+            {errors.peso && <span className="error-text">{errors.peso}</span>}
+          </div>
 
-          <label className="login-label">Categoría</label>
-          <select name="categoria" value={form.categoria} onChange={handleChange} className={`login-input${errors.categoria ? " error" : ""}`} required>
-            {Object.keys(categorias).map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-          {errors.categoria && <span className="error-text">{errors.categoria}</span>}
+          <div>
+            <label>Categoría</label>
+            <select name="categoria" value={form.categoria} onChange={handleChange} required>
+              {Object.keys(categorias).map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+            {errors.categoria && <span className="error-text">{errors.categoria}</span>}
+          </div>
 
-          <label className="login-label">Subcategoría</label>
-          <select name="subcategoria" value={form.subcategoria} onChange={handleChange} className={`login-input${errors.subcategoria ? " error" : ""}`} required>
-            {categorias[form.categoria].map((sub) => (
-              <option key={sub} value={sub}>{sub}</option>
-            ))}
-          </select>
-          {errors.subcategoria && <span className="error-text">{errors.subcategoria}</span>}
+          <div>
+            <label>Subcategoría</label>
+            <select name="subcategoria" value={form.subcategoria} onChange={handleChange} required>
+              {categorias[form.categoria].map((sub) => (
+                <option key={sub} value={sub}>{sub}</option>
+              ))}
+            </select>
+            {errors.subcategoria && <span className="error-text">{errors.subcategoria}</span>}
+          </div>
 
-          <label className="login-label">Imagen</label>
-          <input name="imagenFile" type="file" accept=".jpg,.jpeg,.png,.svg,.webp" onChange={handleChange} className={`login-input${errors.imagenFile ? " error" : ""}`} required />
-          {errors.imagenFile && <span className="error-text">{errors.imagenFile}</span>}
+          <div>
+            <label>Imagen</label>
+            <input name="imagenFile" type="file" accept=".jpg,.jpeg,.png,.svg,.webp" onChange={handleChange} required />
+            {errors.imagenFile && <span className="error-text">{errors.imagenFile}</span>}
+          </div>
 
-          <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? "Guardando..." : "Guardar producto"}
-          </button>
+          <div style={{ marginTop: 8 }}>
+            <button type="submit" className="btn-editar" disabled={isLoading}>
+              {isLoading ? "Guardando..." : "Guardar producto"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

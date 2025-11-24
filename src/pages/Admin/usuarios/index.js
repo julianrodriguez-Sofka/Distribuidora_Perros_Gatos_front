@@ -25,7 +25,7 @@ export const AdminUsuariosPage = () => {
       dispatch({ type: 'FETCH_USERS_SUCCESS', payload: data });
     } catch (error) {
       console.error('Error loading users:', error);
-      toast.error('Error al cargar los usuarios');
+      if (!error?._toastsShown) toast.error('Error al cargar los usuarios');
     }
   };
 
@@ -40,7 +40,7 @@ export const AdminUsuariosPage = () => {
       dispatch({ type: 'FETCH_USERS_SUCCESS', payload: data });
     } catch (error) {
       console.error('Error searching users:', error);
-      toast.error('Error al buscar usuarios');
+      if (!error?._toastsShown) toast.error('Error al buscar usuarios');
     }
   };
 

@@ -80,3 +80,9 @@
 .form-producto input, .form-producto textarea { width:100%; padding:8px; border:1px solid #e6e9ee; border-radius:6px; }
 .form-producto textarea { min-height:100px; }
 
+/* Error text for forms */
+.error-text { display:block; color:#dc2626; font-size:13px; margin-top:6px; }
+
+/* Ensure form buttons look consistent */
+.form-producto .btn-editar { padding: 10px 16px; font-size: 15px; }
+

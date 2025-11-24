@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { isAdminUser } from '../../../utils/auth';
 
 export const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -11,7 +12,7 @@ export const ProtectedRoute = ({ children, requireAdmin = false }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requireAdmin && user?.rol !== 'admin') {
+  if (requireAdmin && !isAdminUser(user)) {
     // Redirect to home if not admin
     return <Navigate to="/" replace />;
   }

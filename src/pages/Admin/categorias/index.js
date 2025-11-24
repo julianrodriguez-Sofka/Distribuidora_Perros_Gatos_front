@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategorias, createCategoria, createSubcategoria, updateCategoria } from '../../../redux/actions/categorias-actions';
+import { fetchCategorias, createCategoria, createSubcategoria, updateCategoria, deleteCategoria } from '../../../redux/actions/categorias-actions';
 import { useToast } from '../../../hooks/use-toast';
 import './style.css';
 
@@ -28,8 +28,10 @@ const AdminCategoriasPage = () => {
     } catch (err) {
       // backend may send structured error
       const code = err?.response?.data?.error || err?.error;
-      if (code === 'nombre_duplicado') toast.error('Nombre de categoría ya existe');
-      else toast.error(err?.message || 'Error al crear categoría');
+      if (!err?._toastsShown) {
+        if (code === 'nombre_duplicado') toast.error('Nombre de categoría ya existe');
+        else toast.error(err?.message || 'Error al crear categoría');
+      }
     }
   };
 
@@ -44,8 +46,10 @@ const AdminCategoriasPage = () => {
       dispatch(fetchCategorias());
     } catch (err) {
       const code = err?.response?.data?.error || err?.error;
-      if (code === 'nombre_duplicado') toast.error('Nombre de subcategoría ya existe');
-      else toast.error(err?.message || 'Error al crear subcategoría');
+      if (!err?._toastsShown) {
+        if (code === 'nombre_duplicado') toast.error('Nombre de subcategoría ya existe');
+        else toast.error(err?.message || 'Error al crear subcategoría');
+      }
     }
   };
 
@@ -58,8 +62,21 @@ const AdminCategoriasPage = () => {
       dispatch(fetchCategorias());
     } catch (err) {
       const code = err?.response?.data?.error || err?.error;
-      if (code === 'nombre_duplicado') toast.error('Nombre ya existe');
-      else toast.error(err?.message || 'Error al actualizar');
+      if (!err?._toastsShown) {
+        if (code === 'nombre_duplicado') toast.error('Nombre ya existe');
+        else toast.error(err?.message || 'Error al actualizar');
+      }
+    }
+  };
+
+  const onDelete = async (id) => {
+    if (!window.confirm('¿Eliminar categoría? Esta acción eliminará la categoría y sus subcategorías.')) return;
+    try {
+      await dispatch(deleteCategoria(id));
+      toast.success('Categoría eliminada');
+      dispatch(fetchCategorias());
+    } catch (err) {
+      if (!err?._toastsShown) toast.error(err?.message || 'Error al eliminar categoría');
     }
   };
 
@@ -92,8 +109,9 @@ const AdminCategoriasPage = () => {
                   <strong>{cat.nombre}</strong>
                   <div className="categoria-meta">ID: {cat.id}</div>
                 </div>
-                <div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <InlineRename initial={cat.nombre} onSave={(name) => onRename(cat.id, name)} />
+                  <button className="btn-eliminar" onClick={() => onDelete(cat.id)}>Eliminar</button>
                 </div>
               </div>
               <ul className="subcategoria-list">
@@ -118,13 +136,13 @@ const InlineRename = ({ initial, onSave }) => {
   return (
     <div>
       {editing ? (
-        <div style={{ display: 'flex', gap: 8 }}>
-          <input value={value} onChange={e => setValue(e.target.value)} />
-          <button onClick={() => { onSave(value); setEditing(false); }}>Guardar</button>
-          <button onClick={() => { setValue(initial); setEditing(false); }}>Cancelar</button>
+        <div className="editing-controls" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input className="editing-input" value={value} onChange={e => setValue(e.target.value)} />
+          <button className="btn-guardar" onClick={() => { onSave(value); setEditing(false); }}>Guardar</button>
+          <button className="btn-cancelar" onClick={() => { setValue(initial); setEditing(false); }}>Cancelar</button>
         </div>
       ) : (
-        <button onClick={() => setEditing(true)}>Editar</button>
+        <button className="btn-editar" onClick={() => setEditing(true)}>Editar</button>
       )}
     </div>
   );

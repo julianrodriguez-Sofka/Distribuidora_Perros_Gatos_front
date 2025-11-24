@@ -30,11 +30,31 @@ export const createSubcategoria = (categoriaPadreId, nombre) => async (dispatch)
   }
 };
 
+export const updateSubcategoria = (id, categoriaId, nombre) => async (dispatch) => {
+  try {
+    const updated = await categoriasService.updateSubcategory(id, categoriaId, nombre);
+    dispatch({ type: 'UPDATE_SUBCATEGORIA_SUCCESS', payload: updated });
+    return updated;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const updateCategoria = (id, nombre) => async (dispatch) => {
   try {
     const updated = await categoriasService.updateCategory(id, nombre);
     dispatch({ type: 'UPDATE_CATEGORIA_SUCCESS', payload: updated });
     return updated;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const deleteCategoria = (id) => async (dispatch) => {
+  try {
+    const deleted = await categoriasService.deleteCategory(id, { sync: true });
+    dispatch({ type: 'DELETE_CATEGORIA_SUCCESS', payload: { id } });
+    return deleted;
   } catch (err) {
     throw err;
   }

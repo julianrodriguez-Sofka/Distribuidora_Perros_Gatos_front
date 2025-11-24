@@ -21,7 +21,7 @@ const ListarProductos = () => {
       const data = await productosService.getAllProducts();
       setProductos(data);
     } catch (error) {
-      toast.error(error.message || 'Error al cargar productos');
+      if (!error?._toastsShown) toast.error(error.message || 'Error al cargar productos');
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,7 @@ const ListarProductos = () => {
       toast.success('Producto eliminado correctamente');
       fetchProductos();
     } catch (error) {
-      toast.error(error.message || 'Error al eliminar producto');
+      if (!error?._toastsShown) toast.error(error.message || 'Error al eliminar producto');
     }
   };
 

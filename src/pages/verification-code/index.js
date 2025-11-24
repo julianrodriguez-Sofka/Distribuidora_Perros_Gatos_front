@@ -26,7 +26,7 @@ const VerificationCodePage = () => {
       showToast("Correo verificado correctamente.", "success");
       navigate("/login");
     } catch (error) {
-      showToast(error?.message || "Código inválido o expirado.", "error");
+      if (!error?._toastsShown) showToast(error?.message || "Código inválido o expirado.", "error");
     } finally {
       setLoading(false);
     }
@@ -42,7 +42,7 @@ const VerificationCodePage = () => {
       await authService.resendVerificationCode(email);
       showToast("Código reenviado. Revisa tu correo.", "success");
     } catch (error) {
-      showToast(error?.message || "No se pudo reenviar el código.", "error");
+      if (!error?._toastsShown) showToast(error?.message || "No se pudo reenviar el código.", "error");
     } finally {
       setLoading(false);
     }

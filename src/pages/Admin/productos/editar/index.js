@@ -77,7 +77,7 @@ const EditarProductoPage = () => {
       }
     } catch (err) {
       console.error('Error subiendo imagen', err);
-      toast.error('Error al subir imagen');
+      if (!err?._toastsShown) toast.error('Error al subir imagen');
     } finally {
       setUploadingImage(false);
     }
@@ -105,7 +105,7 @@ const EditarProductoPage = () => {
       toast.success('Producto actualizado');
       navigate('/admin/productos');
     } catch (error) {
-      toast.error('Error al actualizar producto');
+        if (!error?._toastsShown) toast.error('Error al actualizar producto');
     }
   };
 

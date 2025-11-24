@@ -78,7 +78,7 @@ export const CartPage = () => {
       navigate('/pedidos');
     } catch (error) {
       console.error('Error creating order:', error);
-      toast.error('Error al procesar el pedido');
+      if (!error?._toastsShown) toast.error('Error al procesar el pedido');
     } finally {
       setIsProcessing(false);
     }
