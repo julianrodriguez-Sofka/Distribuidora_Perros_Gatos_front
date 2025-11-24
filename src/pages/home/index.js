@@ -6,6 +6,8 @@ import { useCart } from '../../hooks/use-cart';
 import { useContext } from 'react';
 import CartContext from '../../modules/cart/context/CartContext';
 import { ProductCard } from '../../components/ui';
+import Hero from '../../components/hero/Hero';
+import FeaturedSection from '../../components/featured/FeaturedSection';
 import { toast } from '../../utils/toast';
 import './style.css';
 
@@ -140,6 +142,8 @@ export const HomePage = () => {
 
   return (
     <div className="home-page">
+      <Hero />
+
       {carouselImages.length > 0 && (
         <section className="carousel-section" aria-label="Carrusel de promociones">
           <div className="carousel">
@@ -161,6 +165,8 @@ export const HomePage = () => {
         </section>
       )}
 
+      <FeaturedSection />
+
       <div className="catalog-container">
         {Object.entries(catalog).map(([categoryName, subcategories]) => (
           <CategorySection
@@ -174,6 +180,7 @@ export const HomePage = () => {
 
       {Object.keys(catalog).length === 0 && (
         <div className="empty-catalog">
+        
           <p>No hay productos disponibles en este momento.</p>
         </div>
       )}

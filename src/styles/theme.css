@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;600;700&display=swap');
+
+:root{
+  --color-primary: #2F6BE1;
+  --color-secondary: #FF7A59;
+  --color-accent: #34C759;
+  /* Fondo más moderno y suave (azul claro) en lugar de blanco puro */
+  --bg: #F4F7FF;
+  --card-bg: #FFFFFF;
+  --text: #111827;
+  --muted: #6B7280;
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --shadow-soft: 0 8px 24px rgba(16,24,40,0.06);
+  --shadow-strong: 0 10px 30px rgba(16,24,40,0.12);
+  --max-content-width: 1200px;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+h1,h2,h3,h4,h5,h6{ font-family: 'Poppins', 'Inter', sans-serif; }
+
+/* Utility helpers */
+.container {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.text-muted { color: var(--muted); }
