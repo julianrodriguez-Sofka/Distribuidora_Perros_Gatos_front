@@ -23,35 +23,24 @@ const apiClient2 = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
-    // Only attach Authorization header for the /auth/me (or /me) endpoint
-    // to avoid sending the token to endpoints that reject it with 400.
+    // Attach Authorization header globally when token exists.
+    // Some endpoints/clients may still remove it intentionally (see apiClient2).
     try {
       const url = config && config.url ? config.url.toString() : '';
-      // Debug: log login request payload/headers to help trace 400 on login
+      // Debug: log login request headers for /auth/login during development
       if (url && url.includes('/auth/login')) {
         try {
-          // Avoid logging sensitive data in production; this is temporary for debugging
-          // We log method, url and headers (not body) to inspect Authorization and Content-Type
           // eslint-disable-next-line no-console
-          console.debug('[apiClient] Debug login request:', { method: config.method, url, headers: config.headers });
+          console.debug('[apiClient] Debug login request headers:', { method: config.method, url, headers: config.headers });
         } catch (e) {}
       }
-      const shouldAttach = !!token && (url.endsWith('/auth/me') || url.endsWith('/me') || url.includes('/auth/me') || url.endsWith('/me'));
-      if (shouldAttach) {
+
+      if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
-      } else {
-        // ensure no Authorization header is sent for other endpoints
-        if (config.headers) {
-          delete config.headers.Authorization;
-          delete config.headers.authorization;
-        }
       }
+      // If no token, do not modify Authorization header (leave as-is or absent)
     } catch (e) {
-      // fallback: do not attach token
-      if (config.headers) {
-        delete config.headers.Authorization;
-        delete config.headers.authorization;
-      }
+      // ignore errors and don't modify headers
     }
     return config;
   },

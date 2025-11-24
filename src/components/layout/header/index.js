@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Button } from '../../ui/index';
 import { useAuth } from '../../../hooks/use-auth';
+import { isAdminUser } from '../../../utils/auth';
 import { useCartModule } from '../../../modules/cart/context/CartContext';
 import './style.css';
 
@@ -10,7 +11,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const { itemCount } = useCartModule();
-  const isAdmin = user?.rol === 'admin';
+  const isAdmin = isAdminUser(user);
 
   const handleLogout = () => {
     logout();

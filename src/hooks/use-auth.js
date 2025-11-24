@@ -13,15 +13,30 @@ export const useAuth = () => {
 
   async function login(email, password) {
     try {
-      const response = await authService.login(email, password);
-      dispatch(loginAction(response.user));
-      
-      // Redirect based on where user came from
-      const from = location.state?.from?.pathname || '/';
-      navigate(from, { replace: true });
-      
-      toast.success('¡Bienvenido de nuevo!');
-      return { success: true };
+      // Attempt login (may store token in localStorage)
+      const loginResp = await authService.login(email, password);
+
+      // After login, try to fetch the current user from the server.
+      // This ensures we have a valid session/token and obtain the canonical user object.
+      try {
+        const me = await authService.getCurrentUser();
+        dispatch(loginAction(me));
+
+        // Redirect based on where user came from
+        const from = location.state?.from?.pathname || '/';
+        navigate(from, { replace: true });
+
+        toast.success('¡Bienvenido de nuevo!');
+        return { success: true };
+      } catch (err) {
+        // If fetching current user failed with 401, clear any stored token and return error
+        const message = err.response?.data?.message || err.response?.data?.detail || err?.message || 'No autenticado';
+        // ensure we don't show duplicate toasts if interceptor did
+        if (!err?._toastsShown) toast.error(message);
+        // dispatch logout just in case
+        dispatch(logoutAction());
+        return { success: false, error: message };
+      }
     } catch (error) {
         const message = error.response?.data?.message || 'Correo o contraseña incorrectos.';
         if (!error?._toastsShown) toast.error(message);

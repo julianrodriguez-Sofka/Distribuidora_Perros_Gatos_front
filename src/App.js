@@ -38,8 +38,17 @@ function App() {
         if (user) {
           dispatch(loginSuccess(user));
           // If the user is admin, redirect to admin products on session start
-          if (user.rol === 'admin' || user.role === 'admin') {
-            navigate('/admin/productos', { replace: true });
+          try {
+            // Accept different shapes for role (rol, role, roles...)
+            const { isAdminUser } = await import('./utils/auth');
+            if (isAdminUser(user)) {
+              navigate('/admin/productos', { replace: true });
+            }
+          } catch (err) {
+            // fallback to previous checks
+            if (user.rol === 'admin' || user.role === 'admin') {
+              navigate('/admin/productos', { replace: true });
+            }
           }
         }
       } catch (error) {
