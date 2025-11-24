@@ -20,6 +20,7 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
+  scroll-behavior: smooth; /* enable smooth scrolling when JS advances */
 }
 
 .carousel-item {
