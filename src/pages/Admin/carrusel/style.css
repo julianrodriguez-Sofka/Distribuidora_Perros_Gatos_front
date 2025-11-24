@@ -1,3 +1,193 @@
+.carrusel-form input[type="number"],
+.carrusel-form input[type="text"] {
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #f3f4f6;
+  font-size: 15px;
+  margin-right: 8px;
+  min-width: 120px;
+}
+.carrusel-form input[type="number"] {
+  width: 80px;
+}
+.carrusel-form input[type="file"] {
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 6px;
+  background: #f3f4f6;
+  font-size: 15px;
+  margin-right: 8px;
+}
+
+.admin-carrusel-page {
+  padding: 40px 24px;
+  background: linear-gradient(120deg, #f0f4f8 0%, #e0e7ff 100%);
+  min-height: 100vh;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.carrusel-preview {
+  margin-bottom: 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+  padding: 24px;
+}
+
+.carrusel-thumbs {
+  display: flex;
+  gap: 24px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.carrusel-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #e0e7ff;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #f9fafb 0%, #e0e7ff 100%);
+  box-shadow: 0 1px 6px rgba(60, 60, 120, 0.06);
+  min-width: 120px;
+}
+
+
+.carrusel-thumb img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(60, 60, 120, 0.10);
+  background: #f3f4f6;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.carrusel-thumb span {
+  font-size: 14px;
+  color: #6366f1;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.carrusel-thumb a {
+  font-size: 13px;
+  color: #2563eb;
+  text-decoration: underline;
+  margin-top: 2px;
+}
+
+.carrusel-form {
+  margin-bottom: 36px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+  padding: 18px 24px;
+}
+
+.carrusel-form input[type="file"] {
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 6px;
+  background: #f3f4f6;
+}
+
+.carrusel-form input[type="text"] {
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #f3f4f6;
+  font-size: 15px;
+}
+
+.carrusel-form button {
+  background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 1px 6px rgba(60, 60, 120, 0.08);
+  transition: background 0.2s;
+}
+.carrusel-form button:hover {
+  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+}
+
+.carrusel-list {
+  margin-top: 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+  padding: 24px;
+}
+
+.carrusel-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 18px;
+  background: #f9fafb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.carrusel-table th, .carrusel-table td {
+  border: 1px solid #e0e7ff;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 15px;
+}
+.carrusel-table th {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 700;
+}
+.thumb-img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(60, 60, 120, 0.10);
+}
+.btn-eliminar {
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+  color: #fff;
+  border: none;
+  padding: 7px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 1px 6px rgba(60, 60, 120, 0.08);
+  transition: background 0.2s;
+}
+.btn-eliminar:hover {
+  background: linear-gradient(90deg, #b91c1c 0%, #ef4444 100%);
+}
+.btn-guardar {
+  background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 1px 6px rgba(60, 60, 120, 0.08);
+  transition: background 0.2s;
+}
+.btn-guardar:hover {
+  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+}
 .admin-carrusel-page {
   width: 100%;
 }

@@ -91,7 +91,7 @@
     - `"Enviado"` → `"Entregado"` o `"Cancelado"`
 - **Acción**:
   1. Administrador cambia el estado desde un dropdown.
-  2. Al seleccionar un nuevo estado válido, se envía `PATCH /api/admin/pedidos/{id}` con:
+  2. Al seleccionar un nuevo estado válido, se envía `PATCH /admin/pedidos/{id}` con:
      ```json
      { "estado": "Enviado" }
      ```
@@ -154,5 +154,5 @@
 2. Administrador selecciona `"Enviado"` en dropdown.
 3. Frontend envía:
    ```json
-   PATCH /api/admin/pedidos/pedido-123
+   PATCH /admin/pedidos/pedido-123
    { "estado": "Enviado" }

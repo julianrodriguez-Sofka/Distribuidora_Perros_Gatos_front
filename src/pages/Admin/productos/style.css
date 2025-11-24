@@ -1,3 +1,17 @@
+.btn-editar {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 6px;
+  transition: background 0.2s;
+}
+.btn-editar:hover {
+  background: #1d4ed8;
+}
 .admin-productos-page {
   width: 100%;
 }
@@ -21,4 +35,54 @@
   padding: 60px 20px;
   color: #6b7280;
 }
+
+.admin-productos-listar {
+  padding: 32px;
+}
+
+.productos-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.productos-table th, .productos-table td {
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  text-align: left;
+}
+.productos-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+.btn-eliminar {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.btn-eliminar:hover {
+  background: #b91c1c;
+}
+
+.form-producto {
+  max-width: 900px;
+  background: #fff;
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+}
+.form-producto div { margin-bottom: 12px; }
+.form-producto label { display:block; font-weight:600; margin-bottom:6px; }
+.form-producto input, .form-producto textarea { width:100%; padding:8px; border:1px solid #e6e9ee; border-radius:6px; }
+.form-producto textarea { min-height:100px; }
+
+/* Error text for forms */
+.error-text { display:block; color:#dc2626; font-size:13px; margin-top:6px; }
+
+/* Ensure form buttons look consistent */
+.form-producto .btn-editar { padding: 10px 16px; font-size: 15px; }
 

@@ -64,10 +64,13 @@
   - Contraseña incorrecta.
   - Cuenta no activa (`estado ≠ "activo"`).
 - **Acciones**:
-  - Backend responde con `401 Unauthorized`.
+  - Backend responde con `401 Unauthorized` o `403` si la cuenta no está activa.
   - **Mensaje de error genérico** (nunca revelar si el email existe):
     > `"Correo o contraseña incorrectos."`
-  - Mostrar este mensaje como **Toast alert**.
+  - Si la respuesta es `{status: "error", message: "Cuenta no verificada. Revisa tu correo."}`:
+    - Mostrar **Toast** con el mensaje.
+    - Redirigir automáticamente a `/verification-code` pasando el email por estado.
+  - Mostrar el mensaje como **Toast alert**.
   - **No establecer cookie ni token**.
 
 > ⚠️ **Nunca usar `window.alert()`**. Solo **Toast**.

@@ -1,39 +1,35 @@
 import apiClient from './api-client';
 
 export const carouselService = {
-  // Get carousel images
+  // Obtener imágenes del carrusel
   async getCarousel() {
-    const response = await apiClient.get('/carousel');
+    const response = await apiClient.get('/admin/carrusel');
     return response.data;
   },
 
-  // Admin: Add carousel image
-  async addCarouselImage(imageData) {
-    const formData = new FormData();
-    if (imageData.imagenFile) {
-      formData.append('imagenFile', imageData.imagenFile);
-    }
-    if (imageData.enlaceUrl) {
-      formData.append('enlaceUrl', imageData.enlaceUrl);
-    }
-    
-    const response = await apiClient.post('/admin/carousel', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+  // Subir nueva imagen al carrusel
+  async addImage(formData) {
+    const response = await apiClient.post('/admin/carrusel', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
   },
 
-  // Admin: Delete carousel image
-  async deleteCarouselImage(id) {
-    const response = await apiClient.delete(`/admin/carousel/${id}`);
+  // Eliminar imagen del carrusel
+  async deleteImage(id) {
+    const response = await apiClient.delete(`/admin/carrusel/${id}`);
     return response.data;
   },
 
-  // Admin: Reorder carousel images
-  async reorderCarousel(reorderData) {
-    const response = await apiClient.patch('/admin/carousel/reorder', reorderData);
+  // Reordenar imágenes del carrusel
+  async reorderImages(orderList) {
+    const response = await apiClient.patch('/admin/carrusel/reorder', orderList);
+    return response.data;
+  },
+
+  // Editar enlace de imagen
+  async updateImage(id, data) {
+    const response = await apiClient.patch(`/admin/carrusel/${id}`, data);
     return response.data;
   },
 };

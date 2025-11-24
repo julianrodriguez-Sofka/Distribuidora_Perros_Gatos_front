@@ -63,7 +63,7 @@ Cada entrada del carrusel debe almacenarse como un objeto con los siguientes cam
   - Tamaño ≤ 10 MB (10,485,760 bytes)
 - **Acciones**:
   1. Validar en frontend (extensión + tamaño con File API).
-  2. Si válido, subir a `POST /api/admin/carousel` con:
+  2. Si válido, subir a `POST /admin/carousel` con:
      ```json
      {
        "imagenFile": "<binary>",
@@ -87,7 +87,7 @@ Cada entrada del carrusel debe almacenarse como un objeto con los siguientes cam
 - **Condiciones**: Imagen seleccionada en la lista.
 - **Acciones**:
   1. Confirmación visual (no modal, solo botón de acción).
-  2. Enviar `DELETE /api/admin/carousel/{id}`
+  2. Enviar `DELETE /admin/carousel/{id}`
   3. Backend elimina registro (y opcionalmente el archivo).
   4. Frontend:
      - Elimina miniatura de la lista.
@@ -100,7 +100,7 @@ Cada entrada del carrusel debe almacenarse como un objeto con los siguientes cam
 ### AC 3: Reordenar imágenes
 - **Mecanismo**:
   - El administrador modifica el campo `"Orden"` de una o más imágenes (valores enteros entre 1 y 5).
-  - Al guardar (o al perder foco), se envía `PATCH /api/admin/carousel/reorder` con:
+  - Al guardar (o al perder foco), se envía `PATCH /admin/carousel/reorder` con:
     ```json
     [
       { "id": "img-1", "orden": 1 },

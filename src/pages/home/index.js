@@ -3,52 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { productosService } from '../../services/productos-service';
 import { carouselService } from '../../services/carousel-service';
 import { useCart } from '../../hooks/use-cart';
-import { Button } from '../../components/ui';
-import { formatPrice, formatWeight } from '../../utils/validation';
+import { useContext } from 'react';
+import CartContext from '../../modules/cart/context/CartContext';
+import { ProductCard } from '../../components/ui';
 import { toast } from '../../utils/toast';
 import './style.css';
 
-const ProductCard = ({ product, onAddToCart }) => {
-  const isOutOfStock = product.stock === 0;
 
-  const handleAddToCart = () => {
-    if (!isOutOfStock) {
-      onAddToCart(product);
-    }
-  };
-
-  return (
-    <div className="product-card">
-      <div className="product-card-image">
-        <img
-          src={product.imagenUrl || '/placeholder-product.png'}
-          alt={product.nombre}
-          loading="lazy"
-        />
-        {isOutOfStock && <div className="product-card-overlay">Sin existencias</div>}
-      </div>
-      <div className="product-card-content">
-        <h3 className="product-card-name">{product.nombre}</h3>
-        <p className="product-card-price">{formatPrice(product.precio)}</p>
-        <p className="product-card-weight">{formatWeight(product.peso)}</p>
-        <p className="product-card-stock">
-          {isOutOfStock
-            ? 'Sin existencias'
-            : `Disponible: ${product.stock} unidades`}
-        </p>
-        <Button
-          variant="primary"
-          size="small"
-          disabled={isOutOfStock}
-          onClick={handleAddToCart}
-          className="product-card-button"
-        >
-          Agregar al carrito
-        </Button>
-      </div>
-    </div>
-  );
-};
 
 const CategorySection = ({ categoryName, subcategories, onAddToCart }) => {
   if (!subcategories || Object.keys(subcategories).length === 0) {
@@ -87,7 +48,13 @@ export const HomePage = () => {
   const { catalog } = useSelector((state) => state.productos);
   const carousel = useSelector((state) => state.carousel);
   const [isLoading, setIsLoading] = useState(true);
-  const { addToCart } = useCart();
+  // Call both hooks unconditionally; prefer new CartContext when available
+  const legacyCart = useCart();
+  const ctx = useContext(CartContext);
+  const addToCartHandler = (product, qty = 1) => {
+    if (ctx && ctx.addItem) return ctx.addItem(product, qty);
+    return legacyCart.addToCart(product, qty);
+  };
 
   useEffect(() => {
     loadCatalog();
@@ -99,10 +66,40 @@ export const HomePage = () => {
     try {
       setIsLoading(true);
       const data = await productosService.getCatalog();
-      dispatch({ type: 'FETCH_CATALOG_SUCCESS', payload: data });
+
+      // If backend returns an array of products, transform it into the
+      // expected catalog shape: { categoryName: { subcategoryName: [products] } }
+      let catalogPayload = data;
+      if (Array.isArray(data)) {
+        catalogPayload = data.reduce((acc, prod) => {
+          const catName = prod.categoria?.nombre || 'Sin categoría';
+          const subName = prod.subcategoria?.nombre || 'General';
+          if (!acc[catName]) acc[catName] = {};
+          if (!acc[catName][subName]) acc[catName][subName] = [];
+
+          // Normalize product fields expected by ProductCard
+          const imagenFromArray = Array.isArray(prod.imagenes) && prod.imagenes.length > 0
+            ? prod.imagenes[0]?.imagen_url || prod.imagenes[0]?.url || null
+            : null;
+          const possibleImage = prod.imagen_url ?? prod.imagenUrl ?? imagenFromArray ?? null;
+          const imagenUrl = possibleImage ? (typeof possibleImage === 'string' && possibleImage.startsWith('http') ? possibleImage : `http://localhost:8000${possibleImage}`) : null;
+
+          const normalized = {
+            ...prod,
+            imagenUrl,
+            stock: prod.cantidad_disponible ?? prod.stock ?? 0,
+            peso: prod.peso_gramos ?? prod.peso ?? null,
+          };
+
+          acc[catName][subName].push(normalized);
+          return acc;
+        }, {});
+      }
+
+      dispatch({ type: 'FETCH_CATALOG_SUCCESS', payload: catalogPayload });
     } catch (error) {
       console.error('Error loading catalog:', error);
-      toast.error('Error al cargar el catálogo de productos');
+      if (!error?._toastsShown) toast.error('Error al cargar el catálogo de productos');
     } finally {
       setIsLoading(false);
     }
@@ -111,14 +108,24 @@ export const HomePage = () => {
   const loadCarousel = async () => {
     try {
       const data = await carouselService.getCarousel();
-      dispatch({ type: 'FETCH_CAROUSEL_SUCCESS', payload: Array.isArray(data) ? data : [] });
+      // Normalize backend fields (imagen_url, link_url) to frontend shape (imagenUrl, enlaceUrl)
+      const normalized = Array.isArray(data)
+        ? data.map((item) => ({
+            ...item,
+            imagenUrl: typeof item.imagen_url === 'string' && item.imagen_url
+              ? (item.imagen_url.startsWith('http') ? item.imagen_url : `http://localhost:8000${item.imagen_url}`)
+              : null,
+            enlaceUrl: item.link_url ?? item.enlaceUrl ?? null,
+          }))
+        : [];
+      dispatch({ type: 'FETCH_CAROUSEL_SUCCESS', payload: normalized });
     } catch (error) {
       console.error('Error loading carousel:', error);
     }
   };
 
   const handleAddToCart = (product) => {
-    addToCart(product, 1);
+    addToCartHandler(product, 1);
   };
 
   if (isLoading) {

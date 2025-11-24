@@ -39,7 +39,7 @@ export const AdminPedidosPage = () => {
     } catch (error) {
       console.error('Error loading orders:', error);
       dispatch({ type: 'FETCH_ORDERS_FAILURE', payload: error.message });
-      toast.error('Error al cargar los pedidos');
+      if (!error?._toastsShown) toast.error('Error al cargar los pedidos');
     }
   };
 
@@ -54,7 +54,7 @@ export const AdminPedidosPage = () => {
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error loading order:', error);
-      toast.error('Error al cargar el pedido');
+      if (!error?._toastsShown) toast.error('Error al cargar el pedido');
     }
   };
 
@@ -72,7 +72,7 @@ export const AdminPedidosPage = () => {
       }
     } catch (error) {
       console.error('Error updating order status:', error);
-      toast.error('Error al actualizar el estado del pedido');
+      if (!error?._toastsShown) toast.error('Error al actualizar el estado del pedido');
     } finally {
       setIsUpdating(false);
     }
