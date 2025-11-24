@@ -14,8 +14,7 @@ export const AdminProductosPage = () => {
           <Button variant="primary">Crear Nuevo Producto</Button>
         </Link>
       </div>
-      <ListarProductos />
+        <ListarProductos />
     </div>
   );
 };
-

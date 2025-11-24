@@ -20,6 +20,7 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
+  scroll-behavior: smooth; /* enable smooth scrolling when JS advances */
 }
 
 .carousel-item {
@@ -75,13 +76,14 @@
 }
 
 .product-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  background: var(--card-bg);
+  border: 1px solid rgba(16,24,40,0.04);
+  border-radius: 12px;
   overflow: hidden;
-  transition: all 0.2s;
+  transition: all 0.18s ease;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-soft);
 }
 
 .product-card:hover {

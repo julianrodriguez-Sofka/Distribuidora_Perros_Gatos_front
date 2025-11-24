@@ -6,6 +6,9 @@ import { useCart } from '../../hooks/use-cart';
 import { useContext } from 'react';
 import CartContext from '../../modules/cart/context/CartContext';
 import { ProductCard } from '../../components/ui';
+import Hero from '../../components/hero/Hero';
+import FeaturedSection from '../../components/featured/FeaturedSection';
+import SwiperCarousel from '../../components/carousel/SwiperCarousel';
 import { toast } from '../../utils/toast';
 import './style.css';
 
@@ -127,6 +130,9 @@ export const HomePage = () => {
   const handleAddToCart = (product) => {
     addToCartHandler(product, 1);
   };
+  const carouselImages = carousel?.images || [];
+
+  // Replaced manual scroll logic with SwiperCarousel component.
 
   if (isLoading) {
     return (
@@ -136,30 +142,17 @@ export const HomePage = () => {
     );
   }
 
-  const carouselImages = carousel?.images || [];
-
   return (
     <div className="home-page">
+      <Hero />
+
       {carouselImages.length > 0 && (
         <section className="carousel-section" aria-label="Carrusel de promociones">
-          <div className="carousel">
-            {carouselImages.map((item, index) => (
-              <a
-                key={item.id}
-                href={item.enlaceUrl || '#'}
-                className="carousel-item"
-                aria-label={`Promoción ${index + 1}`}
-              >
-                <img
-                  src={item.imagenUrl}
-                  alt={`Promoción ${index + 1}`}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                />
-              </a>
-            ))}
-          </div>
+          <SwiperCarousel images={carouselImages} />
         </section>
       )}
+
+      <FeaturedSection />
 
       <div className="catalog-container">
         {Object.entries(catalog).map(([categoryName, subcategories]) => (
@@ -174,6 +167,7 @@ export const HomePage = () => {
 
       {Object.keys(catalog).length === 0 && (
         <div className="empty-catalog">
+        
           <p>No hay productos disponibles en este momento.</p>
         </div>
       )}

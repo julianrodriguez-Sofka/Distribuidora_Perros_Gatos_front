@@ -9,9 +9,11 @@ export const Button = ({
   onClick,
   type = 'button',
   className = '',
+  round = false,
+  icon = null,
   ...props
 }) => {
-  const classNames = `btn btn-${variant} btn-${size} ${className}`.trim();
+  const classNames = `btn btn-${variant} btn-${size} ${round ? 'btn-round' : ''} ${className}`.trim();
 
   return (
     <button
@@ -21,6 +23,7 @@ export const Button = ({
       onClick={onClick}
       {...props}
     >
+      {icon && <span className="btn-icon">{icon}</span>}
       {children}
     </button>
   );

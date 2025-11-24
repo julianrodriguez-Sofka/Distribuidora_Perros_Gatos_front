@@ -1,0 +1,51 @@
+/* Styles for SwiperCarousel */
+.swiper-carousel-container {
+  width: 100%;
+  /* Default responsive height: between 200px and 320px */
+  height: clamp(200px, 25vh, 320px);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.swiper-carousel-container {
+  display: block; /* keep Swiper structure intact; center per-slide instead */
+  width: 100%;
+}
+
+/* Ensure each slide centers its content both vertically and horizontally */
+.swiper-carousel-container .swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* no extra spacing by default */
+  box-sizing: border-box;
+}
+
+/* Show the full image centered without distortion. Use contain so whole image is visible. */
+.swiper-carousel-container img {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+  margin: 0 auto;
+  background: var(--card-bg, #ffffff);
+}
+
+/* Match theme: customize arrows and bullets */
+.swiper-button-next,
+.swiper-button-prev {
+  color: var(--color-accent, #0056d6);
+}
+
+.swiper-pagination-bullet {
+  background: rgba(255,255,255,0.7);
+  opacity: 0.9;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--color-primary, #2b8aef);
+}
