@@ -56,7 +56,7 @@ export const AdminUsuarioDetailPage = () => {
       setUserOrders(filteredOrders);
     } catch (error) {
       console.error('Error loading user:', error);
-      toast.error('Error al cargar el usuario');
+      if (!error?._toastsShown) toast.error('Error al cargar el usuario');
     } finally {
       setIsLoading(false);
     }

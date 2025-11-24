@@ -99,7 +99,7 @@ export const HomePage = () => {
       dispatch({ type: 'FETCH_CATALOG_SUCCESS', payload: catalogPayload });
     } catch (error) {
       console.error('Error loading catalog:', error);
-      toast.error('Error al cargar el catálogo de productos');
+      if (!error?._toastsShown) toast.error('Error al cargar el catálogo de productos');
     } finally {
       setIsLoading(false);
     }

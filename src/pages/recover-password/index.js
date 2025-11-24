@@ -20,7 +20,7 @@ const RecoverPasswordPage = () => {
         navigate('/verification-code', { state: { email } });
       }, 1200);
     } catch (error) {
-      showToast(error?.message || "Error al enviar el código.", "error");
+      if (!error?._toastsShown) showToast(error?.message || "Error al enviar el código.", "error");
     } finally {
       setLoading(false);
     }

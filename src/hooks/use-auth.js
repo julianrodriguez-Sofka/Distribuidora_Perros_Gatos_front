@@ -23,8 +23,8 @@ export const useAuth = () => {
       toast.success('¡Bienvenido de nuevo!');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Correo o contraseña incorrectos.';
-      toast.error(message);
+        const message = error.response?.data?.message || 'Correo o contraseña incorrectos.';
+        if (!error?._toastsShown) toast.error(message);
         return { success: false, error: message };
       }
     };
@@ -47,7 +47,7 @@ export const useAuth = () => {
         return { success: true, data: response };
       } catch (error) {
         const message = error.response?.data?.message || 'Error al registrar usuario.';
-        toast.error(message);
+        if (!error?._toastsShown) toast.error(message);
         return { success: false, error: message };
       }
     };
