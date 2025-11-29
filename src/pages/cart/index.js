@@ -7,6 +7,7 @@ import { Button, Input } from '../../components/ui/index';
 import { formatPrice } from '../../utils/validation';
 import { toast } from '../../utils/toast';
 import { pedidosService } from '../../services/pedidos-service';
+import { CheckoutForm } from './components/CheckoutForm';
 import './style.css';
 
 export const CartPage = () => {
@@ -34,6 +35,7 @@ export const CartPage = () => {
     clearCart = legacy.clearCart;
   }
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
   const handleQuantityChange = (productId, newQuantity) => {
     const quantity = parseInt(newQuantity, 10);
@@ -42,15 +44,13 @@ export const CartPage = () => {
       updateQuantity(productId, quantity);
     }
   };
-
   const handleRemove = (productId) => {
     removeFromCart(productId);
   };
 
-  const handleCheckout = async () => {
+  const handleCheckoutClick = () => {
     if (!isAuthenticated) {
       toast.error('Debes iniciar sesión o registrarte para continuar con la compra.');
-      // Optionally add a button in toast to redirect to login
       setTimeout(() => navigate('/login'), 2000);
       return;
     }
@@ -60,28 +60,40 @@ export const CartPage = () => {
       return;
     }
 
+    setShowCheckoutForm(true);
+  };
+
+  const handleCheckoutSubmit = async (formData) => {
     setIsProcessing(true);
     try {
       const orderData = {
-        productos: cart.map(item => ({
-          sku: item.id,
-          nombre: item.nombre,
+        usuario_id: user.id,
+        direccion_entrega: formData.direccion_entrega,
+        telefono_contacto: formData.telefono_contacto,
+        metodo_pago: formData.metodo_pago,
+        nota_especial: formData.nota_especial || '',
+        items: cart.map(item => ({
+          producto_id: item.id,
           cantidad: item.quantity ?? item.cantidad ?? 1,
-          precioUnitario: item.precio,
+          precio_unitario: item.precio,
         })),
-        direccionEnvio: user.direccionEnvio,
       };
 
       await pedidosService.createOrder(orderData);
       clearCart();
-      toast.success('Pedido creado exitosamente');
-      navigate('/pedidos');
+      setShowCheckoutForm(false);
+      toast.success('¡Pedido creado exitosamente! Pronto recibirás la confirmación.');
+      navigate('/');
     } catch (error) {
       console.error('Error creating order:', error);
       if (!error?._toastsShown) toast.error('Error al procesar el pedido');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleCheckoutCancel = () => {
+    setShowCheckoutForm(false);
   };
 
   if (cart.length === 0) {
@@ -147,27 +159,25 @@ export const CartPage = () => {
         </div>
 
         <div className="cart-summary">
-          <h2 className="cart-summary-title">Resumen</h2>
-          <div className="cart-summary-row">
-            <span>Productos:</span>
-            <span>{itemCount}</span>
-          </div>
-          <div className="cart-summary-row cart-summary-total">
-            <span>Total:</span>
-            <span>{formatPrice(total)}</span>
-          </div>
           <Button
             variant="primary"
             size="large"
-            onClick={handleCheckout}
+            onClick={handleCheckoutClick}
             disabled={isProcessing}
             className="cart-checkout-button"
           >
-            {isProcessing ? 'Procesando...' : 'Comprar'}
+            Comprar
           </Button>
         </div>
       </div>
+
+      {showCheckoutForm && (
+        <CheckoutForm
+          onSubmit={handleCheckoutSubmit}
+          onCancel={handleCheckoutCancel}
+          isProcessing={isProcessing}
+        />
+      )}
     </div>
   );
 };
-

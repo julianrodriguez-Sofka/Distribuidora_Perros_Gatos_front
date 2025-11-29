@@ -87,7 +87,7 @@ src/
 Crea un archivo `.env` en la raíz del proyecto:
 
 ```env
-REACT_APP_API_URL=http://localhost:3000/api
+REACT_APP_API_URL=http://localhost:8000/api
 REACT_APP_ENV=development
 ```
 

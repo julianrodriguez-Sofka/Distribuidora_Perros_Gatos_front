@@ -51,8 +51,8 @@ export const CartProvider = ({ children, initial = [] }) => {
 
   const itemCount = useMemo(() => items.reduce((s, it) => s + (it.quantity || 0), 0), [items]);
   const subtotal = useMemo(() => items.reduce((s, it) => s + (it.quantity || 0) * (it.precio || it.price || 0), 0), [items]);
-  const shipping = useMemo(() => (subtotal > 0 ? Math.max(150, Math.round(subtotal * 0.05)) : 0), [subtotal]);
-  const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
+  const shipping = 0; // Sin costo de envío
+  const total = useMemo(() => subtotal, [subtotal]); // Total = Subtotal (sin shipping)
 
   const value = {
     items,

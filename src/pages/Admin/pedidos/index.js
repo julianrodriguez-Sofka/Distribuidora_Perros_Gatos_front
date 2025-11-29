@@ -116,6 +116,8 @@ export const AdminPedidosPage = () => {
                 <th>Cliente</th>
                 <th>Fecha</th>
                 <th>Total</th>
+                <th>Método Pago</th>
+                <th>Teléfono</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -129,8 +131,10 @@ export const AdminPedidosPage = () => {
                   <tr key={order.id}>
                     <td>{order.id}</td>
                     <td>{order.clienteNombre}</td>
-                    <td>{formatDate(order.fecha)}</td>
+                    <td>{formatDate(order.fecha_creacion)}</td>
                     <td>{formatPrice(order.total)}</td>
+                    <td>{order.metodo_pago || 'N/A'}</td>
+                    <td>{order.telefono_contacto || 'N/A'}</td>
                     <td>
                       <OrderStatusBadge status={order.estado} />
                     </td>
@@ -188,8 +192,10 @@ export const AdminPedidosPage = () => {
             </div>
             
             <div className="order-detail-section">
-              <h3>Envío</h3>
-              <p>{selectedOrder.direccionEnvio}</p>
+              <h3>Información de Envío</h3>
+              <p><strong>Dirección:</strong> {selectedOrder.direccion_entrega || selectedOrder.direccionEnvio || 'No especificada'}</p>
+              <p><strong>Teléfono:</strong> {selectedOrder.telefono_contacto || 'No especificado'}</p>
+              <p><strong>Método de Pago:</strong> {selectedOrder.metodo_pago || 'No especificado'}</p>
             </div>
 
             <div className="order-detail-section">
@@ -217,9 +223,10 @@ export const AdminPedidosPage = () => {
             </div>
 
             <div className="order-detail-section">
+              <h3>Resumen del Pedido</h3>
               <p><strong>Total:</strong> {formatPrice(selectedOrder.total)}</p>
               <p><strong>Estado:</strong> <OrderStatusBadge status={selectedOrder.estado} /></p>
-              <p><strong>Fecha:</strong> {formatDate(selectedOrder.fecha)}</p>
+              <p><strong>Fecha:</strong> {formatDate(selectedOrder.fecha_creacion)}</p>
             </div>
           </div>
         </Modal>
