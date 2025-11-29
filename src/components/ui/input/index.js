@@ -131,12 +131,16 @@ export const Select = ({
         aria-describedby={hasError ? `${selectId}-error` : undefined}
         {...props}
       >
-        {placeholder && <option value="">{placeholder}</option>}
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {placeholder && !props.children && <option value="">{placeholder}</option>}
+        {options.length > 0 ? (
+          options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))
+        ) : (
+          props.children
+        )}
       </select>
       {error && (
         <span id={`${selectId}-error`} className="input-error-message" role="alert">
