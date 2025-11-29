@@ -3,13 +3,13 @@ import apiClient from './api-client';
 export const pedidosService = {
   // Create order
   async createOrder(orderData) {
-    const response = await apiClient.post('/api/pedidos', orderData);
+    const response = await apiClient.post('/pedidos', orderData);
     return response.data;
   },
 
   // Get user orders
   async getUserOrders() {
-    const response = await apiClient.get('/api/pedidos');
+    const response = await apiClient.get('/pedidos');
     return response.data;
   },
 

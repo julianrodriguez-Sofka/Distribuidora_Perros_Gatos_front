@@ -1,9 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/use-cart';
 import CartContext from '../../modules/cart/context/CartContext';
 import { useAuth } from '../../hooks/use-auth';
-import { Button, Input } from '../../components/ui/index';
+import { Button, Input, Textarea, Select } from '../../components/ui/index';
 import { formatPrice } from '../../utils/validation';
 import { toast } from '../../utils/toast';
 import { pedidosService } from '../../services/pedidos-service';
@@ -17,11 +17,13 @@ export const CartPage = () => {
   const legacy = useCart();
   const ctx = useContext(CartContext);
 
-  let cart, itemCount, total, updateQuantity, removeFromCart, clearCart;
+  let cart, itemCount, total, subtotal, shipping, updateQuantity, removeFromCart, clearCart;
   if (ctx) {
     cart = ctx.items;
     itemCount = ctx.itemCount;
     total = ctx.total;
+    subtotal = ctx.subtotal;
+    shipping = ctx.shipping;
     updateQuantity = ctx.updateQuantity;
     removeFromCart = ctx.removeItem;
     clearCart = ctx.clear;
@@ -29,11 +31,43 @@ export const CartPage = () => {
     cart = legacy.cart;
     itemCount = legacy.itemCount;
     total = legacy.total;
+    // Calculate subtotal and shipping for legacy cart
+    subtotal = cart.reduce((sum, item) => sum + (item.precio || 0) * (item.quantity || item.cantidad || 1), 0);
+    shipping = subtotal > 0 ? Math.max(150, Math.round(subtotal * 0.05)) : 0;
     updateQuantity = legacy.updateQuantity;
     removeFromCart = legacy.removeFromCart;
     clearCart = legacy.clearCart;
   }
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [shippingAddress, setShippingAddress] = useState('');
+  const [shippingPhone, setShippingPhone] = useState('');
+  const [specialNote, setSpecialNote] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+
+  const paymentMethods = [
+    { value: 'efectivo', label: 'Efectivo' },
+    { value: 'tarjeta_credito', label: 'Tarjeta de Crédito' },
+    { value: 'tarjeta_debito', label: 'Tarjeta de Débito' },
+    { value: 'transferencia', label: 'Transferencia Bancaria' },
+    { value: 'nequi', label: 'Nequi' },
+    { value: 'daviplata', label: 'Daviplata' },
+  ];
+
+  // Initialize form with user data if available
+  useEffect(() => {
+    if (user) {
+      const userAddress = user.direccion_envio || user.direccionEnvio || '';
+      const userPhone = user.telefono || '';
+      setShippingAddress(userAddress);
+      setShippingPhone(userPhone);
+      
+      // Show form automatically if address is invalid
+      if (!userAddress || userAddress.trim().length < 10) {
+        setShowAddressForm(true);
+      }
+    }
+  }, [user]);
 
   const handleQuantityChange = (productId, newQuantity) => {
     const quantity = parseInt(newQuantity, 10);
@@ -47,16 +81,46 @@ export const CartPage = () => {
     removeFromCart(productId);
   };
 
+  const validateAddressForm = () => {
+    if (!shippingAddress || shippingAddress.trim().length < 10) {
+      toast.error('La dirección de envío debe tener al menos 10 caracteres.');
+      return false;
+    }
+    if (!shippingPhone || shippingPhone.trim().length < 7) {
+      toast.error('El teléfono de contacto debe tener al menos 7 dígitos.');
+      return false;
+    }
+    return true;
+  };
+
   const handleCheckout = async () => {
     if (!isAuthenticated) {
       toast.error('Debes iniciar sesión o registrarte para continuar con la compra.');
-      // Optionally add a button in toast to redirect to login
       setTimeout(() => navigate('/login'), 2000);
       return;
     }
 
     if (cart.length === 0) {
       toast.error('Tu carrito está vacío');
+      return;
+    }
+
+    // Check if address form needs to be shown
+    const hasValidAddress = shippingAddress && shippingAddress.trim().length >= 10;
+    if (!hasValidAddress) {
+      setShowAddressForm(true);
+      toast.error('Por favor, completa la información de envío antes de continuar.');
+      return;
+    }
+
+    // Validate form if it's visible
+    if (showAddressForm && !validateAddressForm()) {
+      return;
+    }
+
+    // Validate payment method
+    if (!paymentMethod) {
+      toast.error('Por favor, selecciona un método de pago.');
       return;
     }
 
@@ -69,7 +133,12 @@ export const CartPage = () => {
           cantidad: item.quantity ?? item.cantidad ?? 1,
           precioUnitario: item.precio,
         })),
-        direccionEnvio: user.direccionEnvio,
+        direccionEnvio: shippingAddress.trim(),
+        telefonoContacto: shippingPhone.trim(),
+        notaEspecial: specialNote.trim() || undefined,
+        subtotal: subtotal,
+        costoEnvio: shipping,
+        metodoPago: paymentMethod,
       };
 
       await pedidosService.createOrder(orderData);
@@ -78,7 +147,11 @@ export const CartPage = () => {
       navigate('/pedidos');
     } catch (error) {
       console.error('Error creating order:', error);
-      if (!error?._toastsShown) toast.error('Error al procesar el pedido');
+      const errorMessage = error.response?.data?.detail?.message || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          'Error al procesar el pedido';
+      if (!error?._toastsShown) toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -148,14 +221,115 @@ export const CartPage = () => {
 
         <div className="cart-summary">
           <h2 className="cart-summary-title">Resumen</h2>
-          <div className="cart-summary-row">
-            <span>Productos:</span>
-            <span>{itemCount}</span>
+          
+          {/* Product breakdown */}
+          <div className="cart-products-breakdown">
+            <h3 className="breakdown-title">Productos</h3>
+            {cart.map((item) => {
+              const quantity = item.quantity ?? item.cantidad ?? 1;
+              const itemTotal = (item.precio || 0) * quantity;
+              return (
+                <div key={item.id} className="breakdown-item">
+                  <div className="breakdown-item-info">
+                    <span className="breakdown-item-name">{item.nombre}</span>
+                    <span className="breakdown-item-details">
+                      {quantity} x {formatPrice(item.precio)}
+                    </span>
+                  </div>
+                  <span className="breakdown-item-total">{formatPrice(itemTotal)}</span>
+                </div>
+              );
+            })}
           </div>
-          <div className="cart-summary-row cart-summary-total">
-            <span>Total:</span>
-            <span>{formatPrice(total)}</span>
+
+          {/* Cost breakdown */}
+          <div className="cart-cost-breakdown">
+            <div className="cart-summary-row">
+              <span>Subtotal:</span>
+              <span>{formatPrice(subtotal)}</span>
+            </div>
+            <div className="cart-summary-row">
+              <span>Costo de Envío:</span>
+              <span>{formatPrice(shipping)}</span>
+            </div>
+            <div className="cart-summary-row cart-summary-total">
+              <span>Total:</span>
+              <span>{formatPrice(total)}</span>
+            </div>
           </div>
+
+          {/* Shipping Address Form */}
+          <div className={`shipping-form-container ${showAddressForm ? 'shipping-form-visible' : ''}`}>
+            <h3 className="shipping-form-title">Información de Envío</h3>
+            <div className="shipping-form-fields">
+              <div className="form-field">
+                <label htmlFor="shipping-address">Dirección de Envío *</label>
+                <Textarea
+                  id="shipping-address"
+                  value={shippingAddress}
+                  onChange={(e) => setShippingAddress(e.target.value)}
+                  placeholder="Ingresa tu dirección completa (mínimo 10 caracteres)"
+                  rows={3}
+                  className="shipping-input"
+                />
+                {shippingAddress && shippingAddress.trim().length < 10 && (
+                  <span className="form-error">La dirección debe tener al menos 10 caracteres</span>
+                )}
+              </div>
+              <div className="form-field">
+                <label htmlFor="shipping-phone">Teléfono de Contacto *</label>
+                <Input
+                  id="shipping-phone"
+                  type="tel"
+                  value={shippingPhone}
+                  onChange={(e) => setShippingPhone(e.target.value)}
+                  placeholder="Ej: 3001234567"
+                  className="shipping-input"
+                />
+                {shippingPhone && shippingPhone.trim().length < 7 && (
+                  <span className="form-error">El teléfono debe tener al menos 7 dígitos</span>
+                )}
+              </div>
+              <div className="form-field">
+                <label htmlFor="special-note">Nota Especial (Opcional)</label>
+                <Textarea
+                  id="special-note"
+                  value={specialNote}
+                  onChange={(e) => setSpecialNote(e.target.value)}
+                  placeholder="Instrucciones especiales para la entrega"
+                  rows={2}
+                  className="shipping-input"
+                />
+              </div>
+              <div className="form-field">
+                <label htmlFor="payment-method">Método de Pago *</label>
+                <Select
+                  id="payment-method"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  options={paymentMethods}
+                  placeholder="Selecciona un método de pago"
+                  className="shipping-input"
+                  required
+                />
+                {!paymentMethod && (
+                  <span className="form-error">Debes seleccionar un método de pago</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {!showAddressForm && (
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={() => setShowAddressForm(true)}
+              className="cart-edit-address-button"
+            >
+              {shippingAddress ? 'Editar Dirección' : 'Agregar Dirección de Envío'}
+            </Button>
+          )}
+
           <Button
             variant="primary"
             size="large"

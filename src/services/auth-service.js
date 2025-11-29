@@ -104,8 +104,18 @@ export const authService = {
 
   // Get current user
   async getCurrentUser() {
-    const response = await apiClient.get('/auth/me');
-    return response.data;
+    try {
+      const response = await apiClient.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      // If 401 and no token, this is expected (user not logged in)
+      // Don't throw error, just return null
+      if (error.response?.status === 401 && !localStorage.getItem('access_token')) {
+        return null;
+      }
+      // For other errors or 401 with token (expired), re-throw
+      throw error;
+    }
   },
 };
 

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { MainLayout } from './components/layout/main-layout';
 import { AdminLayout } from './components/layout/admin-layout';
@@ -28,37 +28,60 @@ import './App.css';
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const hasCheckedAuth = useRef(false);
 
   useEffect(() => {
-    // Check if user is authenticated on mount
+    // Check if user is authenticated on mount (only once)
+    if (hasCheckedAuth.current) return;
+    
     const checkAuth = async () => {
+      hasCheckedAuth.current = true;
       try {
         const user = await authService.getCurrentUser();
         if (user) {
           dispatch(loginSuccess(user));
-          // If the user is admin, redirect to admin products on session start
+          // Only redirect to admin products if:
+          // 1. User is admin
+          // 2. User is on the home page, login, or register pages
+          // 3. User is NOT already on an admin page
           try {
-            // Accept different shapes for role (rol, role, roles...)
             const { isAdminUser } = await import('./utils/auth');
             if (isAdminUser(user)) {
-              navigate('/admin/productos', { replace: true });
+              const currentPath = window.location.pathname;
+              const isAdminPage = currentPath.startsWith('/admin/');
+              // Only redirect if user is on home page or login/register pages, and NOT already on admin page
+              if (!isAdminPage && (currentPath === '/' || currentPath === '/login' || currentPath === '/registro')) {
+                navigate('/admin/productos', { replace: true });
+              }
+              // If user is already on an admin page, don't redirect - let them navigate freely
             }
           } catch (err) {
             // fallback to previous checks
             if (user.rol === 'admin' || user.role === 'admin') {
-              navigate('/admin/productos', { replace: true });
+              const currentPath = window.location.pathname;
+              const isAdminPage = currentPath.startsWith('/admin/');
+              if (!isAdminPage && (currentPath === '/' || currentPath === '/login' || currentPath === '/registro')) {
+                navigate('/admin/productos', { replace: true });
+              }
             }
           }
         }
       } catch (error) {
-        // User not authenticated
-        console.log('User not authenticated');
+        // User not authenticated - this is normal and expected
+        // Only log in development, don't show errors to user
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User not authenticated (this is normal on first load)');
+        }
+        // Silently handle 401 - it means user is not logged in, which is fine
+        // The error is already marked as silent by the interceptor
       }
     };
 
     checkAuth();
-  }, [dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   useEffect(() => {
     // Load cart from localStorage on mount

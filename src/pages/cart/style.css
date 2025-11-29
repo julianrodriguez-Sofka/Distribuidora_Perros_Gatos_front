@@ -125,9 +125,134 @@
   margin-top: 8px;
 }
 
+/* Product Breakdown Styles */
+.cart-products-breakdown {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.breakdown-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px 0;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.breakdown-item:last-child {
+  border-bottom: none;
+}
+
+.breakdown-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.breakdown-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.breakdown-item-details {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.breakdown-item-total {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-left: 12px;
+}
+
+.cart-cost-breakdown {
+  margin-top: 16px;
+}
+
 .cart-checkout-button {
   width: 100%;
   margin-top: 16px;
+}
+
+.cart-edit-address-button {
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+/* Shipping Address Form Styles */
+.shipping-form-container {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.shipping-form-container.shipping-form-visible {
+  max-height: 1000px;
+  opacity: 1;
+  padding-top: 24px;
+  padding-bottom: 16px;
+}
+
+.shipping-form-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+}
+
+.shipping-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.shipping-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.shipping-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-error {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
 }
 
 @media (max-width: 768px) {
