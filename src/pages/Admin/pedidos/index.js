@@ -6,12 +6,12 @@ import { formatPrice, formatDate } from '../../../utils/validation';
 import { toast } from '../../../utils/toast';
 import './style.css';
 
-const ORDER_STATUSES = ['Pendiente de envío', 'Enviado', 'Entregado', 'Cancelado'];
+const ORDER_STATUSES = ['Pendiente', 'Enviado', 'Entregado', 'Cancelado'];
 const FILTER_OPTIONS = ['Todos', ...ORDER_STATUSES];
 
 const getValidTransitions = (currentStatus) => {
   const transitions = {
-    'Pendiente de envío': ['Enviado', 'Cancelado'],
+    'Pendiente': ['Enviado', 'Cancelado'],
     'Enviado': ['Entregado', 'Cancelado'],
     'Entregado': [],
     'Cancelado': [],
@@ -35,7 +35,12 @@ export const AdminPedidosPage = () => {
     try {
       dispatch({ type: 'FETCH_ORDERS_REQUEST' });
       const data = await pedidosService.getAllOrders();
-      dispatch({ type: 'FETCH_ORDERS_SUCCESS', payload: data });
+      // Agregar nombre del cliente basado en usuario_id
+      const ordersWithClient = data.map(order => ({
+        ...order,
+        clienteNombre: `Cliente #${order.usuario_id}` // Placeholder hasta que tengamos endpoint de usuarios
+      }));
+      dispatch({ type: 'FETCH_ORDERS_SUCCESS', payload: ordersWithClient });
     } catch (error) {
       console.error('Error loading orders:', error);
       dispatch({ type: 'FETCH_ORDERS_FAILURE', payload: error.message });
@@ -49,8 +54,14 @@ export const AdminPedidosPage = () => {
 
   const handleViewOrder = async (orderId) => {
     try {
-      const order = await pedidosService.getOrderById(orderId);
-      setSelectedOrder(order);
+      const order = await pedidosService.getAdminOrderById(orderId);
+      // Agregar información del cliente
+      const orderWithClient = {
+        ...order,
+        clienteNombre: `Cliente #${order.usuario_id}`,
+        clienteId: order.usuario_id
+      };
+      setSelectedOrder(orderWithClient);
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error loading order:', error);
@@ -156,16 +167,13 @@ export const AdminPedidosPage = () => {
                                 e.target.value = '';
                               }
                             }}
+                            options={[
+                              { value: '', label: 'Cambiar estado' },
+                              ...validTransitions.map(status => ({ value: status, label: status }))
+                            ]}
                             className="status-select"
                             disabled={isUpdating}
-                          >
-                            <option value="">Cambiar estado</option>
-                            {validTransitions.map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </Select>
+                          />
                         )}
                       </div>
                     </td>
@@ -193,7 +201,10 @@ export const AdminPedidosPage = () => {
             
             <div className="order-detail-section">
               <h3>Información de Envío</h3>
-              <p><strong>Dirección:</strong> {selectedOrder.direccion_entrega || selectedOrder.direccionEnvio || 'No especificada'}</p>
+              <p><strong>Dirección:</strong> {selectedOrder.direccion_entrega || 'No especificada'}</p>
+              {selectedOrder.municipio && <p><strong>Ciudad:</strong> {selectedOrder.municipio}</p>}
+              {selectedOrder.departamento && <p><strong>Departamento:</strong> {selectedOrder.departamento}</p>}
+              {selectedOrder.pais && <p><strong>País:</strong> {selectedOrder.pais}</p>}
               <p><strong>Teléfono:</strong> {selectedOrder.telefono_contacto || 'No especificado'}</p>
               <p><strong>Método de Pago:</strong> {selectedOrder.metodo_pago || 'No especificado'}</p>
             </div>
@@ -210,12 +221,12 @@ export const AdminPedidosPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedOrder.productos?.map((product, index) => (
+                  {selectedOrder.items?.map((item, index) => (
                     <tr key={index}>
-                      <td>{product.nombre}</td>
-                      <td>{product.cantidad}</td>
-                      <td>{formatPrice(product.precioUnitario)}</td>
-                      <td>{formatPrice(product.precioUnitario * product.cantidad)}</td>
+                      <td>Producto #{item.producto_id}</td>
+                      <td>{item.cantidad}</td>
+                      <td>{formatPrice(item.precio_unitario)}</td>
+                      <td>{formatPrice(item.precio_unitario * item.cantidad)}</td>
                     </tr>
                   ))}
                 </tbody>

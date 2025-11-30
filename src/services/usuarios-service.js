@@ -20,5 +20,11 @@ export const usuariosService = {
     });
     return response.data;
   },
+
+  // Admin: Get user orders
+  async getUserOrders(userId) {
+    const response = await apiClient.get(`/admin/usuarios/${userId}/pedidos`);
+    return response.data;
+  },
 };
 

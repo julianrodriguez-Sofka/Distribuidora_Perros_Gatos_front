@@ -1,36 +1,89 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import productosService from "../../../../services/productos-service";
+import categoriasService from "../../../../services/categorias-service";
 import { useToast } from "../../../../hooks/use-toast";
 import '../style.css';
-
-const categorias = {
-  Perros: ["Alimento", "Juguetes", "Accesorios", "Higiene"],
-  Gatos: ["Alimento", "Rascadores", "Arena", "Accesorios"],
-};
 
 const MAX_IMAGE_SIZE = 10485760; // 10 MB
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/svg+xml", "image/webp"];
 
 const NuevoProductoPage = () => {
+  const [categorias, setCategorias] = useState([]);
+  const [categoriasMap, setCategoriasMap] = useState({});
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
     precio: "",
     peso: "",
-    categoria: "Perros",
-    subcategoria: "Alimento",
+    categoria_id: "",
+    subcategoria_id: "",
     imagenFile: null,
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingCategorias, setLoadingCategorias] = useState(true);
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadCategorias();
+  }, []);
+
+  const loadCategorias = async () => {
+    try {
+      setLoadingCategorias(true);
+      const data = await categoriasService.getAll();
+      
+      // data puede venir como { status, data } o directamente como array
+      const categoriasArray = Array.isArray(data) ? data : (data?.data || []);
+      
+      setCategorias(categoriasArray);
+      
+      // Crear un mapa para acceso rápido: nombre -> { id, subcategorias }
+      const map = {};
+      categoriasArray.forEach(cat => {
+        map[cat.nombre] = {
+          id: cat.id,
+          subcategorias: cat.subcategorias || []
+        };
+      });
+      setCategoriasMap(map);
+      
+      // Establecer la primera categoría como default
+      if (categoriasArray.length > 0) {
+        const firstCat = categoriasArray[0];
+        const firstSub = firstCat.subcategorias && firstCat.subcategorias.length > 0 
+          ? firstCat.subcategorias[0] 
+          : null;
+        
+        setForm(prev => ({
+          ...prev,
+          categoria_id: firstCat.id,
+          subcategoria_id: firstSub ? firstSub.id : ""
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading categorias:', error);
+      showToast('Error al cargar las categorías', 'error');
+    } finally {
+      setLoadingCategorias(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "imagenFile") {
       setForm((prev) => ({ ...prev, imagenFile: files[0] }));
+    } else if (name === "categoria_id") {
+      // Al cambiar categoría, resetear subcategoría
+      const categoria = categorias.find(cat => cat.id === parseInt(value));
+      const firstSub = categoria?.subcategorias?.[0];
+      setForm((prev) => ({ 
+        ...prev, 
+        categoria_id: value,
+        subcategoria_id: firstSub ? firstSub.id : ""
+      }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -43,8 +96,8 @@ const NuevoProductoPage = () => {
     if (!form.descripcion || form.descripcion.length < 10) newErrors.descripcion = "Mínimo 10 caracteres";
     if (!form.precio || isNaN(form.precio) || Number(form.precio) <= 0) newErrors.precio = "Precio debe ser > 0";
     if (!form.peso || isNaN(form.peso) || !Number.isInteger(Number(form.peso)) || Number(form.peso) < 1) newErrors.peso = "Peso debe ser entero ≥ 1";
-    if (!form.categoria || !categorias[form.categoria]) newErrors.categoria = "Selecciona categoría";
-    if (!form.subcategoria || !categorias[form.categoria].includes(form.subcategoria)) newErrors.subcategoria = "Selecciona subcategoría";
+    if (!form.categoria_id) newErrors.categoria_id = "Selecciona categoría";
+    if (!form.subcategoria_id) newErrors.subcategoria_id = "Selecciona subcategoría";
     if (!form.imagenFile) newErrors.imagenFile = "Imagen requerida";
     else {
       if (!ALLOWED_IMAGE_TYPES.includes(form.imagenFile.type) || form.imagenFile.size > MAX_IMAGE_SIZE) {
@@ -69,9 +122,8 @@ const NuevoProductoPage = () => {
         descripcion: form.descripcion,
         precio: Number(form.precio),
         peso_gramos: Number(form.peso),
-        // backend may accept category names or ids; using the selected value
-        categoria: form.categoria,
-        subcategoria: form.subcategoria,
+        categoria_id: parseInt(form.categoria_id),
+        subcategoria_id: parseInt(form.subcategoria_id),
         imagenFile: form.imagenFile,
       };
 
@@ -89,6 +141,18 @@ const NuevoProductoPage = () => {
       setIsLoading(false);
     }
   };
+
+  if (loadingCategorias) {
+    return (
+      <div className="admin-productos-listar">
+        <h2 className="page-title">Crear Nuevo Producto</h2>
+        <p>Cargando categorías...</p>
+      </div>
+    );
+  }
+
+  const categoriaActual = categorias.find(cat => cat.id === parseInt(form.categoria_id));
+  const subcategoriasDisponibles = categoriaActual?.subcategorias || [];
 
   return (
     <div className="admin-productos-listar">
@@ -123,22 +187,24 @@ const NuevoProductoPage = () => {
 
           <div>
             <label>Categoría</label>
-            <select name="categoria" value={form.categoria} onChange={handleChange} required>
-              {Object.keys(categorias).map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+            <select name="categoria_id" value={form.categoria_id} onChange={handleChange} required>
+              <option value="">Selecciona una categoría</option>
+              {categorias.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.nombre}</option>
               ))}
             </select>
-            {errors.categoria && <span className="error-text">{errors.categoria}</span>}
+            {errors.categoria_id && <span className="error-text">{errors.categoria_id}</span>}
           </div>
 
           <div>
             <label>Subcategoría</label>
-            <select name="subcategoria" value={form.subcategoria} onChange={handleChange} required>
-              {categorias[form.categoria].map((sub) => (
-                <option key={sub} value={sub}>{sub}</option>
+            <select name="subcategoria_id" value={form.subcategoria_id} onChange={handleChange} required disabled={!form.categoria_id}>
+              <option value="">Selecciona una subcategoría</option>
+              {subcategoriasDisponibles.map((sub) => (
+                <option key={sub.id} value={sub.id}>{sub.nombre}</option>
               ))}
             </select>
-            {errors.subcategoria && <span className="error-text">{errors.subcategoria}</span>}
+            {errors.subcategoria_id && <span className="error-text">{errors.subcategoria_id}</span>}
           </div>
 
           <div>
@@ -148,7 +214,7 @@ const NuevoProductoPage = () => {
           </div>
 
           <div style={{ marginTop: 8 }}>
-            <button type="submit" className="btn-editar" disabled={isLoading}>
+            <button type="submit" className="btn-editar" disabled={isLoading || !form.categoria_id}>
               {isLoading ? "Guardando..." : "Guardar producto"}
             </button>
           </div>

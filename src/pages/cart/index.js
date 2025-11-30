@@ -18,10 +18,12 @@ export const CartPage = () => {
   const legacy = useCart();
   const ctx = useContext(CartContext);
 
-  let cart, itemCount, total, updateQuantity, removeFromCart, clearCart;
+  let cart, itemCount, subtotal, shipping, total, updateQuantity, removeFromCart, clearCart;
   if (ctx) {
     cart = ctx.items;
     itemCount = ctx.itemCount;
+    subtotal = ctx.subtotal;
+    shipping = ctx.shipping;
     total = ctx.total;
     updateQuantity = ctx.updateQuantity;
     removeFromCart = ctx.removeItem;
@@ -29,6 +31,8 @@ export const CartPage = () => {
   } else {
     cart = legacy.cart;
     itemCount = legacy.itemCount;
+    subtotal = legacy.subtotal || 0;
+    shipping = legacy.shipping || 0;
     total = legacy.total;
     updateQuantity = legacy.updateQuantity;
     removeFromCart = legacy.removeFromCart;
@@ -159,6 +163,25 @@ export const CartPage = () => {
         </div>
 
         <div className="cart-summary">
+          <h2 className="cart-summary-title">Resumen del Pedido</h2>
+          
+          <div className="cart-summary-row">
+            <span>Productos ({itemCount}):</span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+          
+          <div className="cart-summary-row">
+            <span>Envío:</span>
+            <span>{shipping === 0 ? 'Gratis' : formatPrice(shipping)}</span>
+          </div>
+          
+          <div className="cart-summary-divider"></div>
+          
+          <div className="cart-summary-row cart-summary-total">
+            <span>Total:</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+          
           <Button
             variant="primary"
             size="large"

@@ -117,6 +117,12 @@
   color: #374151;
 }
 
+.cart-summary-divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 8px 0;
+}
+
 .cart-summary-total {
   font-weight: 700;
   font-size: 20px;

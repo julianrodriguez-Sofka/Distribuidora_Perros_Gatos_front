@@ -24,36 +24,29 @@ export const AdminUsuarioDetailPage = () => {
       setIsLoading(true);
       const userDataRaw = await usuariosService.getUserById(id);
 
-      // Backend may return { status, data } or the user object directly
-      const payload = (userDataRaw && userDataRaw.status && userDataRaw.data) ? userDataRaw.data : userDataRaw;
+      // Backend returns { status, data }
+      const u = (userDataRaw && userDataRaw.data) ? userDataRaw.data : userDataRaw;
 
-      const u = payload || {};
-      // Map backend snake_case fields to frontend-friendly names
+      // Map backend camelCase fields
       const normalized = {
-        id: u.id ?? u._id ?? String(id),
-        nombreCompleto: u.nombreCompleto || u.nombre_completo || `${u.nombre || ''} ${u.apellido || ''}`.trim() || '',
-        cedula: u.cedula || u.rut || u.cedula_identidad || '',
-        email: u.email || u.correo || u.mail || '',
-        telefono: u.telefono || u.phone || u.telefono_movil || '',
-        direccionEnvio: u.direccionEnvio || u.direccion_envio || u.direccion || '',
-        fechaRegistro: u.fecha_registro || u.created_at || u.createdAt || null,
-        ultimoLogin: u.ultimo_login || u.last_login || u.lastLogin || null,
-        rol: u.rol || u.role || u.roleName || '',
-        tienePerros: (typeof u.tienePerros !== 'undefined') ? u.tienePerros : (typeof u.tiene_perros !== 'undefined' ? u.tiene_perros : false),
-        tieneGatos: (typeof u.tieneGatos !== 'undefined') ? u.tieneGatos : (typeof u.tiene_gatos !== 'undefined' ? u.tiene_gatos : false),
-        _raw: u,
+        id: u.id ?? String(id),
+        nombreCompleto: u.nombreCompleto || '',
+        cedula: u.cedula || '',
+        email: u.email || '',
+        telefono: u.telefono || '',
+        direccionEnvio: u.direccionEnvio || '',
+        fechaRegistro: u.fechaRegistro || null,
+        ultimoLogin: u.ultimoLogin || null,
+        rol: u.rol || '',
+        preferenciaMascotas: u.preferenciaMascotas || 'Ninguno',
       };
 
       setUser(normalized);
 
-      // Load user orders
-      const allOrders = await pedidosService.getAllOrders();
-      const filteredOrders = allOrders.filter(order => {
-        // backend may return clienteId or cliente_id
-        const clienteId = order.clienteId ?? order.cliente_id ?? order.cliente ?? order.clienteId;
-        return String(clienteId) === String(normalized.id) || String(clienteId) === String(id);
-      });
-      setUserOrders(filteredOrders);
+      // Load user orders from specific endpoint
+      const ordersResponse = await usuariosService.getUserOrders(id);
+      const orders = ordersResponse.data || [];
+      setUserOrders(orders);
     } catch (error) {
       console.error('Error loading user:', error);
       if (!error?._toastsShown) toast.error('Error al cargar el usuario');
@@ -69,8 +62,6 @@ export const AdminUsuarioDetailPage = () => {
   if (!user) {
     return <div className="error">Usuario no encontrado</div>;
   }
-
-  const petPreferences = getPetPreferences(user.tienePerros, user.tieneGatos);
 
   return (
     <div className="admin-usuario-detail-page">
@@ -89,26 +80,26 @@ export const AdminUsuarioDetailPage = () => {
               <strong>ID:</strong> {user.id}
             </div>
             <div className="detail-item">
-              <strong>Nombre completo:</strong> {user.nombreCompleto}
+              <strong>Nombre completo:</strong> {user.nombreCompleto || 'No especificado'}
             </div>
             <div className="detail-item">
-              <strong>Cédula:</strong> {user.cedula}
+              <strong>Cédula:</strong> {user.cedula || 'No especificado'}
             </div>
             <div className="detail-item">
-              <strong>Correo:</strong> {user.email}
+              <strong>Correo:</strong> {user.email || 'No especificado'}
             </div>
             <div className="detail-item">
-              <strong>Teléfono:</strong> {user.telefono}
+              <strong>Teléfono:</strong> {user.telefono || 'No especificado'}
             </div>
             <div className="detail-item">
-              <strong>Dirección de envío:</strong> {user.direccionEnvio}
+              <strong>Dirección de envío:</strong> {user.direccionEnvio || 'No especificada'}
             </div>
           </div>
         </div>
 
         <div className="user-detail-section">
           <h2>Preferencias de Mascotas</h2>
-          <p>{petPreferences}</p>
+          <p>{user.preferenciaMascotas || 'Sin mascotas registradas'}</p>
         </div>
 
         <div className="user-detail-section">
@@ -127,11 +118,11 @@ export const AdminUsuarioDetailPage = () => {
               </thead>
               <tbody>
                 {userOrders
-                  .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                  .sort((a, b) => new Date(b.fecha_creacion) - new Date(a.fecha_creacion))
                   .map((order) => (
                     <tr key={order.id}>
                       <td>{order.id}</td>
-                      <td>{formatDate(order.fecha)}</td>
+                      <td>{formatDate(order.fecha_creacion)}</td>
                       <td>{formatPrice(order.total)}</td>
                       <td>{order.estado}</td>
                     </tr>
