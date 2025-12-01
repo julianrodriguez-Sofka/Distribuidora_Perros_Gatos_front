@@ -9,7 +9,7 @@ export const pedidosService = {
 
   // Get user orders
   async getUserOrders() {
-    const response = await apiClient.get('/pedidos');
+    const response = await apiClient.get('/pedidos/my-orders');
     return response.data;
   },
 

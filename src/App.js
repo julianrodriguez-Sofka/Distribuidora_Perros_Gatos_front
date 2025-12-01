@@ -10,6 +10,7 @@ import VerificationCodePage from './pages/verification-code';
 import { LoginPage } from './pages/login';
 import { RegisterPage } from './pages/register';
 import { CartPage } from './pages/cart';
+import MyOrders from './pages/my-orders/MyOrders';
 import { AdminPedidosPage } from './pages/Admin/pedidos';
 import { AdminUsuariosPage } from './pages/Admin/usuarios';
 import { AdminUsuarioDetailPage } from './pages/Admin/usuarios/detail';
@@ -152,6 +153,16 @@ function App() {
           <MainLayout>
             <CartPage />
           </MainLayout>
+        }
+      />
+      <Route
+        path="/mis-pedidos"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <MyOrders />
+            </MainLayout>
+          </ProtectedRoute>
         }
       />
 

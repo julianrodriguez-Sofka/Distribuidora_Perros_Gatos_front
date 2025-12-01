@@ -42,6 +42,12 @@ export const Header = () => {
             )}
           </Link>
 
+          {isAuthenticated && !isAdmin && (
+            <Link to="/mis-pedidos" className="header-nav-link">
+              📦 Mis Pedidos
+            </Link>
+          )}
+
           {isAuthenticated ? (
             <>
               <span className="header-user">Hola, {user?.nombreCompleto || user?.email}</span>
