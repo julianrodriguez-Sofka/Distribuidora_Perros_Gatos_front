@@ -19,7 +19,9 @@ const NuevoProductoPage = () => {
     categoria_id: "",
     subcategoria_id: "",
     imagenFile: null,
+    imagenUrl: "",
   });
+  const [imagenMode, setImagenMode] = useState("file"); // "file" o "url"
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
@@ -75,6 +77,8 @@ const NuevoProductoPage = () => {
     const { name, value, files } = e.target;
     if (name === "imagenFile") {
       setForm((prev) => ({ ...prev, imagenFile: files[0] }));
+    } else if (name === "imagenUrl") {
+      setForm((prev) => ({ ...prev, imagenUrl: value }));
     } else if (name === "categoria_id") {
       // Al cambiar categoría, resetear subcategoría
       const categoria = categorias.find(cat => cat.id === parseInt(value));
@@ -98,12 +102,23 @@ const NuevoProductoPage = () => {
     if (!form.peso || isNaN(form.peso) || !Number.isInteger(Number(form.peso)) || Number(form.peso) < 1) newErrors.peso = "Peso debe ser entero ≥ 1";
     if (!form.categoria_id) newErrors.categoria_id = "Selecciona categoría";
     if (!form.subcategoria_id) newErrors.subcategoria_id = "Selecciona subcategoría";
-    if (!form.imagenFile) newErrors.imagenFile = "Imagen requerida";
-    else {
-      if (!ALLOWED_IMAGE_TYPES.includes(form.imagenFile.type) || form.imagenFile.size > MAX_IMAGE_SIZE) {
-        newErrors.imagenFile = "Formato o tamaño de imagen no válido. Usa JPG, PNG, SVG o WebP (máx. 10 MB).";
+    
+    // Validar imagen según el modo seleccionado
+    if (imagenMode === "file") {
+      if (!form.imagenFile) newErrors.imagenFile = "Imagen requerida";
+      else {
+        if (!ALLOWED_IMAGE_TYPES.includes(form.imagenFile.type) || form.imagenFile.size > MAX_IMAGE_SIZE) {
+          newErrors.imagenFile = "Formato o tamaño de imagen no válido. Usa JPG, PNG, SVG o WebP (máx. 10 MB).";
+        }
+      }
+    } else {
+      if (!form.imagenUrl || form.imagenUrl.trim() === "") {
+        newErrors.imagenUrl = "URL de imagen requerida";
+      } else if (!form.imagenUrl.match(/^https?:\/\/.+\.(jpg|jpeg|png|svg|webp)$/i)) {
+        newErrors.imagenUrl = "URL inválida. Debe ser una URL válida que termine en .jpg, .jpeg, .png, .svg o .webp";
       }
     }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -124,8 +139,14 @@ const NuevoProductoPage = () => {
         peso_gramos: Number(form.peso),
         categoria_id: parseInt(form.categoria_id),
         subcategoria_id: parseInt(form.subcategoria_id),
-        imagenFile: form.imagenFile,
       };
+      
+      // Agregar imagen según el modo seleccionado
+      if (imagenMode === "file") {
+        payload.imagenFile = form.imagenFile;
+      } else {
+        payload.imagenUrl = form.imagenUrl;
+      }
 
       const response = await productosService.createProduct(payload);
       if (response?.status === "error" && response.message?.includes("nombre")) {
@@ -212,9 +233,73 @@ const NuevoProductoPage = () => {
           </div>
 
           <div>
-            <label>Imagen</label>
-            <input name="imagenFile" type="file" accept=".jpg,.jpeg,.png,.svg,.webp" onChange={handleChange} required />
-            {errors.imagenFile && <span className="error-text">{errors.imagenFile}</span>}
+            <label>Imagen del producto</label>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ marginRight: '20px', fontWeight: 'normal' }}>
+                <input 
+                  type="radio" 
+                  value="file" 
+                  checked={imagenMode === "file"} 
+                  onChange={(e) => setImagenMode(e.target.value)}
+                  style={{ marginRight: '6px' }}
+                />
+                Subir archivo
+              </label>
+              <label style={{ fontWeight: 'normal' }}>
+                <input 
+                  type="radio" 
+                  value="url" 
+                  checked={imagenMode === "url"} 
+                  onChange={(e) => setImagenMode(e.target.value)}
+                  style={{ marginRight: '6px' }}
+                />
+                URL de imagen
+              </label>
+            </div>
+            
+            {/* Preview de imagen */}
+            {((imagenMode === "file" && form.imagenFile) || (imagenMode === "url" && form.imagenUrl)) && (
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9em', color: '#666' }}>
+                  Vista previa:
+                </label>
+                <img 
+                  src={imagenMode === "file" ? URL.createObjectURL(form.imagenFile) : form.imagenUrl} 
+                  alt="Preview" 
+                  style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              </div>
+            )}
+            
+            {imagenMode === "file" ? (
+              <>
+                <input 
+                  name="imagenFile" 
+                  type="file" 
+                  accept=".jpg,.jpeg,.png,.svg,.webp,image/jpeg,image/png,image/svg+xml,image/webp" 
+                  onChange={handleChange} 
+                />
+                <small style={{ display: 'block', marginTop: '6px', color: '#666' }}>
+                  Formatos permitidos: JPG, JPEG, PNG, SVG, WebP (máx. 10 MB)
+                </small>
+                {errors.imagenFile && <span className="error-text">{errors.imagenFile}</span>}
+              </>
+            ) : (
+              <>
+                <input 
+                  name="imagenUrl" 
+                  type="url" 
+                  placeholder="https://ejemplo.com/imagen.jpg" 
+                  value={form.imagenUrl} 
+                  onChange={handleChange}
+                />
+                <small style={{ display: 'block', marginTop: '6px', color: '#666' }}>
+                  Formatos permitidos en URL: .jpg, .jpeg, .png, .svg, .webp
+                </small>
+                {errors.imagenUrl && <span className="error-text">{errors.imagenUrl}</span>}
+              </>
+            )}
           </div>
 
           <div style={{ marginTop: 8 }}>

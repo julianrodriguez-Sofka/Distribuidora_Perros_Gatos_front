@@ -17,7 +17,12 @@ export const productosService = {
 
   // Admin: Create product (then optionally upload image to /products/{id}/images)
   async createProduct(productData) {
-    const { imagenFile, ...payload } = productData || {};
+    const { imagenFile, imagenUrl, ...payload } = productData || {};
+    
+    // Si hay imagenUrl, agregarla al payload
+    if (imagenUrl) {
+      payload.imagenUrl = imagenUrl;
+    }
 
     const response = await apiClient.post('/admin/productos', payload);
     let created = response.data;
@@ -73,7 +78,12 @@ export const productosService = {
 
   // Admin: Update product
   async updateProduct(id, productData) {
-    const { imagenFile, ...payload } = productData || {};
+    const { imagenFile, imagenUrl, ...payload } = productData || {};
+    
+    // Si hay imagenUrl, agregarla al payload
+    if (imagenUrl) {
+      payload.imagenUrl = imagenUrl;
+    }
 
     const response = await apiClient.put(`/admin/productos/${id}`, payload);
     const updated = response.data;

@@ -4,21 +4,36 @@ import { productosService } from '../../../../services/productos-service';
 import { useToast } from '../../../../hooks/use-toast';
 import '../style.css';
 
+const MAX_IMAGE_SIZE = 10485760; // 10 MB
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/svg+xml", "image/webp"];
+
 const EditarProductoPage = () => {
   const { id } = useParams();
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ nombre: '', descripcion: '', precio: '', peso_gramos: '', stock: '', categoria: '', subcategoria: '', imagenFile: null });
+  const [form, setForm] = useState({ nombre: '', descripcion: '', precio: '', peso_gramos: '', stock: '', categoria: '', subcategoria: '', imagenFile: null, imagenUrl: '' });
+  const [imagenMode, setImagenMode] = useState("file"); // "file" o "url"
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProducto = async () => {
+      const fetchProducto = async () => {
       try {
         const data = await productosService.getProductById(id);
         setProducto(data);
+        
+        // Obtener la primera imagen del array imagenes
+        const primeraImagen = data.imagenes && data.imagenes.length > 0 ? data.imagenes[0] : null;
+        const existingUrl = primeraImagen 
+          ? (primeraImagen.startsWith('http') ? primeraImagen : `http://localhost:8000${primeraImagen}`)
+          : '';
+        
+        // Si existe una imagen, determinar el modo
+        if (existingUrl) {
+          setImagenMode(primeraImagen.startsWith('http') ? 'url' : 'file');
+        }
+        
         setForm({
           nombre: data.nombre || '',
           descripcion: data.descripcion || '',
@@ -28,10 +43,13 @@ const EditarProductoPage = () => {
           categoria: data.categoria?.id || data.categoria_id || data.categoria || '',
           subcategoria: data.subcategoria?.id || data.subcategoria_id || '',
           imagenFile: null,
+          imagenUrl: primeraImagen && primeraImagen.startsWith('http') ? primeraImagen : '',
         });
+        
         // set preview to existing image if present
-        const existing = data.imagenUrl || data.imagen_url || data.url || data.path || null;
-        if (existing) setPreviewUrl(existing.startsWith('http') ? existing : `http://localhost:8000${existing}`);
+        if (existingUrl) {
+          setPreviewUrl(existingUrl);
+        }
       } catch (error) {
         // toast may change identity between renders; keep effect deps minimal
         // use navigate or console for debug
@@ -55,31 +73,10 @@ const EditarProductoPage = () => {
       }
     } else {
       setForm({ ...form, [e.target.name]: e.target.value });
-    }
-  };
-
-  const handleUploadImage = async () => {
-    if (!form.imagenFile) return toast.error('Seleccione un archivo primero');
-    setUploadingImage(true);
-    try {
-      const resp = await productosService.uploadProductImage(id, form.imagenFile);
-      // backend may return imagen_url or path
-      const img = resp.imagen_url ?? resp.url ?? resp.path ?? resp.imagenUrl ?? null;
-      const final = img ? (img.startsWith('http') ? img : `http://localhost:8000${img}`) : null;
-      if (final) {
-        setPreviewUrl(final);
-        // update producto preview
-        setProducto(prev => ({ ...(prev || {}), imagenUrl: final }));
-        setForm(prev => ({ ...prev, imagenFile: null }));
-        toast.success('Imagen subida');
-      } else {
-        toast.error('La subida no devolvió URL de imagen');
+      // Si es el campo de URL, actualizar preview
+      if (e.target.name === 'imagenUrl' && e.target.value.trim()) {
+        setPreviewUrl(e.target.value);
       }
-    } catch (err) {
-      console.error('Error subiendo imagen', err);
-      if (!err?._toastsShown) toast.error('Error al subir imagen');
-    } finally {
-      setUploadingImage(false);
     }
   };
 
@@ -95,8 +92,14 @@ const EditarProductoPage = () => {
         subcategoria_id: form.subcategoria ? Number(form.subcategoria) : undefined,
         cantidad_disponible: form.stock ? Number(form.stock) : undefined,
       };
-      if (form.imagenFile) {
+      
+      // Siempre agregar imagen según el modo seleccionado
+      // Esto asegura que las imágenes existentes se eliminen y se actualicen correctamente
+      if (imagenMode === "file" && form.imagenFile) {
         payload.imagenFile = form.imagenFile;
+      } else if (imagenMode === "url") {
+        // Enviar imagenUrl incluso si está vacío para eliminar imágenes existentes
+        payload.imagenUrl = form.imagenUrl || '';
       }
       // Remove undefined fields so backend keeps existing values when not provided
       Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
@@ -153,10 +156,57 @@ const EditarProductoPage = () => {
           ) : (
             <div style={{ color: '#6b7280', marginBottom: 8 }}>No hay imagen</div>
           )}
-          <input name="imagenFile" type="file" accept="image/*" onChange={handleChange} />
-          <button type="button" className="btn-editar" onClick={handleUploadImage} disabled={uploadingImage || !form.imagenFile} style={{ marginLeft: 8 }}>
-            {uploadingImage ? 'Subiendo...' : 'Subir imagen'}
-          </button>
+          
+          <div style={{ marginBottom: '12px', marginTop: '12px' }}>
+            <label style={{ marginRight: '20px', fontWeight: 'normal' }}>
+              <input 
+                type="radio" 
+                value="file" 
+                checked={imagenMode === "file"} 
+                onChange={(e) => setImagenMode(e.target.value)}
+                style={{ marginRight: '6px' }}
+              />
+              Subir archivo
+            </label>
+            <label style={{ fontWeight: 'normal' }}>
+              <input 
+                type="radio" 
+                value="url" 
+                checked={imagenMode === "url"} 
+                onChange={(e) => setImagenMode(e.target.value)}
+                style={{ marginRight: '6px' }}
+              />
+              URL de imagen
+            </label>
+          </div>
+          
+          {imagenMode === "file" ? (
+            <>
+              <input 
+                name="imagenFile" 
+                type="file" 
+                accept=".jpg,.jpeg,.png,.svg,.webp,image/jpeg,image/png,image/svg+xml,image/webp" 
+                onChange={handleChange} 
+              />
+              <small style={{ display: 'block', marginTop: '6px', color: '#666' }}>
+                Formatos permitidos: JPG, JPEG, PNG, SVG, WebP (máx. 10 MB). La imagen se actualizará al hacer clic en "Guardar cambios".
+              </small>
+            </>
+          ) : (
+            <>
+              <input 
+                name="imagenUrl" 
+                type="url" 
+                placeholder="https://ejemplo.com/imagen.jpg" 
+                value={form.imagenUrl} 
+                onChange={handleChange}
+                style={{ width: '100%' }}
+              />
+              <small style={{ display: 'block', marginTop: '6px', color: '#666' }}>
+                Formatos permitidos en URL: .jpg, .jpeg, .png, .svg, .webp
+              </small>
+            </>
+          )}
         </div>
         <button type="submit" className="btn-editar">Guardar cambios</button>
       </form>
