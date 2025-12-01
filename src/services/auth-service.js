@@ -50,8 +50,8 @@ export const authService = {
             return created;
           },
     // Resend verification code
-    async resendVerificationCode(email) {
-      const response = await apiClient.post('/auth/resend-code', { email });
+    async resendVerificationCode(data) {
+      const response = await apiClient.post('/auth/resend-code', data);
       return response.data;
     },
     // Listar productos (admin)
@@ -91,8 +91,8 @@ export const authService = {
   },
 
   // Verify email
-  async verifyEmail(email, code) {
-    const response = await apiClient.post('/auth/verify-email', { email, code });
+  async verifyEmail(data) {
+    const response = await apiClient.post('/auth/verify-email', data);
     return response.data;
   },
 
@@ -108,4 +108,8 @@ export const authService = {
     return response.data;
   },
 };
+
+// Export individual functions for convenience
+export const verificarEmail = authService.verifyEmail.bind(authService);
+export const reenviarCodigo = authService.resendVerificationCode.bind(authService);
 

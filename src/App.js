@@ -20,6 +20,7 @@ import { AdminCategoriasPage } from './pages/Admin/categorias';
 import AdminCarruselPage from './pages/Admin/carrusel';
 import { AdminInventarioPage } from './pages/Admin/inventario';
 import { NotFoundPage } from './pages/not-found';
+import VerifyEmailPage from './pages/verify-email';
 import { authService } from './services/auth-service';
 import { loginSuccess } from './redux/actions/auth-actions';
 import { cartUtils } from './utils/cart';
@@ -140,6 +141,10 @@ function App() {
             <VerificationCodePage />
           </MainLayout>
         }
+      />
+      <Route
+        path="/verify-email"
+        element={<VerifyEmailPage />}
       />
       <Route
         path="/carrito"
