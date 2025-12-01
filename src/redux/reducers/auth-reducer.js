@@ -27,9 +27,15 @@ const authReducer = (state = initialState, action) => {
       };
     case LOGIN_SUCCESS:
     case REGISTER_SUCCESS:
+      // Normalize user data: convert snake_case to camelCase
+      const normalizedUser = action.payload ? {
+        ...action.payload,
+        nombreCompleto: action.payload.nombreCompleto || action.payload.nombre_completo || action.payload.email,
+      } : null;
+      
       return {
         ...state,
-        user: action.payload,
+        user: normalizedUser,
         isAuthenticated: true,
         isLoading: false,
         error: null,

@@ -133,8 +133,12 @@ const NuevoProductoPage = () => {
         setIsLoading(false);
         return;
       }
-      showToast("Producto creado exitosamente", "success");
-      navigate("/admin/productos");
+      showToast("Producto creado exitosamente. Procesando...", "success");
+      
+      // Wait 2 seconds for worker to process the product before navigating
+      setTimeout(() => {
+        navigate("/admin/productos");
+      }, 2000);
     } catch (error) {
       if (!error?._toastsShown) showToast(error?.message || "Error al crear producto.", "error");
     } finally {

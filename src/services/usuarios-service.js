@@ -15,7 +15,7 @@ export const usuariosService = {
 
   // Admin: Search users
   async searchUsers(query) {
-    const response = await apiClient.get('/admin/usuarios/search', {
+    const response = await apiClient.get('/admin/usuarios', {
       params: { q: query },
     });
     return response.data;

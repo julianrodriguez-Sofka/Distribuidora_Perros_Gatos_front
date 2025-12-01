@@ -228,7 +228,7 @@ function App() {
         }
       />
       <Route
-        path="/admin/inventario"
+        path="/admin/estadisticas"
         element={
           <ProtectedRoute requireAdmin>
             <AdminLayout>
@@ -236,6 +236,11 @@ function App() {
             </AdminLayout>
           </ProtectedRoute>
         }
+      />
+      {/* Redirect old inventario route to estadisticas */}
+      <Route
+        path="/admin/inventario"
+        element={<Navigate to="/admin/estadisticas" replace />}
       />
 
       {/* 404 */}

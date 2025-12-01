@@ -12,6 +12,21 @@ const ListarProductos = () => {
 
   useEffect(() => {
     fetchProductos();
+    
+    // Auto-refresh every 3 seconds for the first 10 seconds after mounting
+    // This helps catch newly created products from RabbitMQ worker
+    let refreshCount = 0;
+    const maxRefreshes = 3;
+    const refreshInterval = setInterval(() => {
+      refreshCount++;
+      if (refreshCount <= maxRefreshes) {
+        fetchProductos();
+      } else {
+        clearInterval(refreshInterval);
+      }
+    }, 3000);
+
+    return () => clearInterval(refreshInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
