@@ -35,6 +35,12 @@ function App() {
   useEffect(() => {
     // Check if user is authenticated on mount
     const checkAuth = async () => {
+      // Only check auth if there's a token in localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return; // No token, skip auth check
+      }
+
       try {
         const user = await authService.getCurrentUser();
         if (user) {
@@ -54,8 +60,9 @@ function App() {
           }
         }
       } catch (error) {
-        // User not authenticated
-        console.log('User not authenticated');
+        // Token expired or invalid, clear it
+        localStorage.removeItem('token');
+        console.log('Session expired or invalid');
       }
     };
 

@@ -68,7 +68,7 @@ export const HomePage = () => {
   const loadCatalog = async () => {
     try {
       setIsLoading(true);
-      const data = await productosService.getCatalog();
+      const data = await productosService.getCatalogPublic();
 
       // If backend returns an array of products, transform it into the
       // expected catalog shape: { categoryName: { subcategoryName: [products] } }
@@ -110,7 +110,7 @@ export const HomePage = () => {
 
   const loadCarousel = async () => {
     try {
-      const data = await carouselService.getCarousel();
+      const data = await carouselService.getCarouselPublic();
       // Normalize backend fields (imagen_url, link_url) to frontend shape (imagenUrl, enlaceUrl)
       const normalized = Array.isArray(data)
         ? data.map((item) => ({

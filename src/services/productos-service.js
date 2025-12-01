@@ -1,7 +1,16 @@
 import apiClient from './api-client';
 
 export const productosService = {
-  // Get catalog (grouped by category and subcategory)
+  // Get catalog (public - sin autenticación) - para la página de inicio
+  async getCatalogPublic({ skip = 0, limit = 20, categoria_id = null, subcategoria_id = null } = {}) {
+    const params = { skip, limit };
+    if (categoria_id) params.categoria_id = categoria_id;
+    if (subcategoria_id) params.subcategoria_id = subcategoria_id;
+    const response = await apiClient.get('/home/productos', { params });
+    return response.data;
+  },
+
+  // Get catalog (admin - requiere autenticación)
   async getCatalog({ skip = 0, limit = 20, q = '' } = {}) {
     const params = { skip, limit };
     if (q) params.q = q;

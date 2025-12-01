@@ -1,7 +1,13 @@
 import apiClient from './api-client';
 
 export const carouselService = {
-  // Obtener imágenes del carrusel
+  // Obtener imágenes del carrusel (público - sin autenticación)
+  async getCarouselPublic() {
+    const response = await apiClient.get('/carrusel/images');
+    return response.data;
+  },
+
+  // Obtener imágenes del carrusel (admin - requiere autenticación)
   async getCarousel() {
     const response = await apiClient.get('/admin/carrusel');
     return response.data;
