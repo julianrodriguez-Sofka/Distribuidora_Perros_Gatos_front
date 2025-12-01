@@ -68,14 +68,32 @@ export const formatPrice = (price) => {
 };
 
 export const formatDate = (dateString) => {
+  // Handle null, undefined, or empty values
+  if (!dateString) {
+    return 'N/A';
+  }
+  
+  // Try to parse the date
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('es-CL', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date value:', dateString);
+    return 'Fecha inválida';
+  }
+  
+  try {
+    return new Intl.DateTimeFormat('es-CL', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  } catch (error) {
+    console.error('Error formatting date:', error, dateString);
+    return 'Fecha inválida';
+  }
 };
 
 export const formatWeight = (weightInGrams) => {

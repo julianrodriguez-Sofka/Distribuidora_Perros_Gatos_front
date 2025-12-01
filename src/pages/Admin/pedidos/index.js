@@ -6,17 +6,28 @@ import { formatPrice, formatDate } from '../../../utils/validation';
 import { toast } from '../../../utils/toast';
 import './style.css';
 
-const ORDER_STATUSES = ['Pendiente de envío', 'Enviado', 'Entregado', 'Cancelado'];
+// Map backend statuses to frontend display names
+const STATUS_MAP = {
+  'Pendiente': 'Pendiente',
+  'Enviado': 'Enviado',
+  'Entregado': 'Entregado',
+  'Cancelado': 'Cancelado',
+};
+
+const ORDER_STATUSES = ['Pendiente', 'Enviado', 'Entregado', 'Cancelado'];
 const FILTER_OPTIONS = ['Todos', ...ORDER_STATUSES];
 
 const getValidTransitions = (currentStatus) => {
+  // Normalize status name
+  const normalizedStatus = STATUS_MAP[currentStatus] || currentStatus;
+  
   const transitions = {
-    'Pendiente de envío': ['Enviado', 'Cancelado'],
+    'Pendiente': ['Enviado', 'Cancelado'],
     'Enviado': ['Entregado', 'Cancelado'],
     'Entregado': [],
     'Cancelado': [],
   };
-  return transitions[currentStatus] || [];
+  return transitions[normalizedStatus] || [];
 };
 
 export const AdminPedidosPage = () => {
@@ -49,30 +60,45 @@ export const AdminPedidosPage = () => {
 
   const handleViewOrder = async (orderId) => {
     try {
-      const order = await pedidosService.getOrderById(orderId);
+      const order = await pedidosService.getAdminOrderById(orderId);
+      console.log('Order data received:', order);
+      console.log('Client name:', order.clienteNombre || order.cliente_nombre);
+      console.log('Address:', order.direccion_entrega || order.direccionEnvio);
+      console.log('Phone:', order.telefono_contacto);
+      console.log('Payment method:', order.metodo_pago);
+      console.log('Items:', order.items);
       setSelectedOrder(order);
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error loading order:', error);
-      if (!error?._toastsShown) toast.error('Error al cargar el pedido');
+      const errorMessage = error.response?.data?.detail || 
+                          error.response?.data?.message || 
+                          'Pedido no encontrado';
+      if (!error?._toastsShown) toast.error(errorMessage);
     }
   };
 
-  const handleStatusChange = async (orderId, newStatus) => {
+  const handleStatusChange = async (orderId, newStatus, nota = null) => {
     if (isUpdating) return;
 
     setIsUpdating(true);
     try {
-      const updatedOrder = await pedidosService.updateOrderStatus(orderId, newStatus);
+      const updatedOrder = await pedidosService.updateOrderStatus(orderId, newStatus, nota);
       dispatch({ type: 'UPDATE_ORDER_STATUS_SUCCESS', payload: updatedOrder });
       toast.success('Estado del pedido actualizado exitosamente');
+      
+      // Reload orders list to reflect changes
+      await loadOrders();
       
       if (selectedOrder?.id === orderId) {
         setSelectedOrder(updatedOrder);
       }
     } catch (error) {
       console.error('Error updating order status:', error);
-      if (!error?._toastsShown) toast.error('Error al actualizar el estado del pedido');
+      const errorMessage = error.response?.data?.detail || 
+                          error.response?.data?.message || 
+                          'Error al actualizar el estado del pedido';
+      if (!error?._toastsShown) toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }
@@ -114,7 +140,12 @@ export const AdminPedidosPage = () => {
               <tr>
                 <th>ID</th>
                 <th>Cliente</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Método Pago</th>
                 <th>Fecha</th>
+                <th>Subtotal</th>
+                <th>Envío</th>
                 <th>Total</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -124,13 +155,31 @@ export const AdminPedidosPage = () => {
               {filteredOrders.map((order) => {
                 const validTransitions = getValidTransitions(order.estado);
                 const canEdit = validTransitions.length > 0;
+                // Get date from multiple possible fields
+                const orderDate = order.fecha_creacion || order.fecha || order.created_at;
+                // Get client name from multiple possible fields
+                const clientName = order.clienteNombre || order.cliente_nombre || `Usuario ID: ${order.usuario_id}`;
+                const clientEmail = order.clienteEmail || order.cliente_email || 'N/A';
+                const direccion = order.direccion_entrega || order.direccionEnvio || 'No especificada';
+                const metodoPago = order.metodo_pago ? 
+                  order.metodo_pago.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 
+                  'No especificado';
+                const subtotal = order.subtotal || order.total || 0;
+                const costoEnvio = order.costo_envio || 0;
 
                 return (
                   <tr key={order.id}>
                     <td>{order.id}</td>
-                    <td>{order.clienteNombre}</td>
-                    <td>{formatDate(order.fecha)}</td>
-                    <td>{formatPrice(order.total)}</td>
+                    <td>{clientName}</td>
+                    <td>{clientEmail}</td>
+                    <td className="address-cell" title={direccion}>
+                      {direccion.length > 30 ? `${direccion.substring(0, 30)}...` : direccion}
+                    </td>
+                    <td>{metodoPago}</td>
+                    <td>{formatDate(orderDate)}</td>
+                    <td>{formatPrice(subtotal)}</td>
+                    <td>{formatPrice(costoEnvio)}</td>
+                    <td>{formatPrice(order.total || 0)}</td>
                     <td>
                       <OrderStatusBadge status={order.estado} />
                     </td>
@@ -149,19 +198,23 @@ export const AdminPedidosPage = () => {
                             onChange={(e) => {
                               if (e.target.value) {
                                 handleStatusChange(order.id, e.target.value);
-                                e.target.value = '';
+                                // Reset select value after change
+                                setTimeout(() => {
+                                  e.target.value = '';
+                                }, 0);
                               }
                             }}
                             className="status-select"
                             disabled={isUpdating}
-                          >
-                            <option value="">Cambiar estado</option>
-                            {validTransitions.map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </Select>
+                            options={[
+                              { value: '', label: 'Cambiar estado' },
+                              ...validTransitions.map((status) => ({
+                                value: status,
+                                label: status
+                              }))
+                            ]}
+                            placeholder="Cambiar estado"
+                          />
                         )}
                       </div>
                     </td>
@@ -183,13 +236,23 @@ export const AdminPedidosPage = () => {
           <div className="order-details">
             <div className="order-detail-section">
               <h3>Cliente</h3>
-              <p><strong>Nombre:</strong> {selectedOrder.clienteNombre}</p>
-              <p><strong>ID:</strong> {selectedOrder.clienteId}</p>
+              <p><strong>Nombre:</strong> {selectedOrder.clienteNombre || selectedOrder.cliente_nombre || 'N/A'}</p>
+              <p><strong>ID:</strong> {selectedOrder.clienteId || selectedOrder.cliente_id || selectedOrder.usuario_id || 'N/A'}</p>
+              {(selectedOrder.clienteEmail || selectedOrder.cliente_email) && (
+                <p><strong>Email:</strong> {selectedOrder.clienteEmail || selectedOrder.cliente_email}</p>
+              )}
+              {(selectedOrder.clienteTelefono || selectedOrder.cliente_telefono) && (
+                <p><strong>Teléfono del Cliente:</strong> {selectedOrder.clienteTelefono || selectedOrder.cliente_telefono}</p>
+              )}
             </div>
             
             <div className="order-detail-section">
               <h3>Envío</h3>
-              <p>{selectedOrder.direccionEnvio}</p>
+              <p><strong>Dirección de Entrega:</strong> {selectedOrder.direccion_entrega || selectedOrder.direccionEnvio || 'No especificada'}</p>
+              <p><strong>Teléfono de Contacto:</strong> {selectedOrder.telefono_contacto || 'No especificado'}</p>
+              {selectedOrder.nota_especial && (
+                <p><strong>Nota Especial:</strong> {selectedOrder.nota_especial}</p>
+              )}
             </div>
 
             <div className="order-detail-section">
@@ -204,7 +267,20 @@ export const AdminPedidosPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedOrder.productos?.map((product, index) => (
+                  {selectedOrder.items?.map((item, index) => {
+                    // Try to get product name from different possible sources
+                    const productName = item.nombre || 
+                                      selectedOrder.productos?.[index]?.nombre || 
+                                      `Producto ID: ${item.producto_id}`;
+                    return (
+                      <tr key={item.id || index}>
+                        <td>{productName}</td>
+                        <td>{item.cantidad}</td>
+                        <td>{formatPrice(item.precio_unitario)}</td>
+                        <td>{formatPrice(item.precio_unitario * item.cantidad)}</td>
+                      </tr>
+                    );
+                  }) || selectedOrder.productos?.map((product, index) => (
                     <tr key={index}>
                       <td>{product.nombre}</td>
                       <td>{product.cantidad}</td>
@@ -217,9 +293,76 @@ export const AdminPedidosPage = () => {
             </div>
 
             <div className="order-detail-section">
-              <p><strong>Total:</strong> {formatPrice(selectedOrder.total)}</p>
+              <h3>Resumen de Costos</h3>
+              <div className="cost-breakdown">
+                <div className="cost-row">
+                  <span>Subtotal:</span>
+                  <span>{formatPrice(selectedOrder.subtotal || selectedOrder.total || 0)}</span>
+                </div>
+                <div className="cost-row">
+                  <span>Costo de Envío:</span>
+                  <span>{formatPrice(selectedOrder.costo_envio || 0)}</span>
+                </div>
+                <div className="cost-row cost-total">
+                  <span>Total:</span>
+                  <span>{formatPrice(selectedOrder.total || 0)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="order-detail-section">
+              <h3>Información de Pago</h3>
+              <p><strong>Método de Pago:</strong> {
+                selectedOrder.metodo_pago ? 
+                  selectedOrder.metodo_pago.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 
+                  'No especificado'
+              }</p>
+              {selectedOrder.nota_especial && (
+                <p><strong>Nota Especial:</strong> {selectedOrder.nota_especial}</p>
+              )}
+            </div>
+
+            <div className="order-detail-section">
+              <h3>Información General</h3>
               <p><strong>Estado:</strong> <OrderStatusBadge status={selectedOrder.estado} /></p>
-              <p><strong>Fecha:</strong> {formatDate(selectedOrder.fecha)}</p>
+              <p><strong>Fecha de Creación:</strong> {formatDate(selectedOrder.fecha_creacion || selectedOrder.fecha)}</p>
+              
+              {/* Change Status Section */}
+              <div className="status-change-section">
+                <h4>Cambiar Estado</h4>
+                {(() => {
+                  const validTransitions = getValidTransitions(selectedOrder.estado);
+                  if (validTransitions.length === 0) {
+                    return <p className="no-transitions">No hay transiciones disponibles para este estado.</p>;
+                  }
+                  return (
+                    <div className="status-change-controls">
+                      <Select
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleStatusChange(selectedOrder.id, e.target.value);
+                            // Reset select value after change
+                            setTimeout(() => {
+                              e.target.value = '';
+                            }, 0);
+                          }
+                        }}
+                        className="status-select-modal"
+                        disabled={isUpdating}
+                        options={[
+                          { value: '', label: 'Seleccionar nuevo estado' },
+                          ...validTransitions.map((status) => ({
+                            value: status,
+                            label: status
+                          }))
+                        ]}
+                        placeholder="Seleccionar nuevo estado"
+                      />
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
           </div>
         </Modal>

@@ -89,67 +89,90 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Extract backend error messages and show them in toasts
-    try {
-      const msgs = [];
-      if (!error.response) {
-        // Network or CORS error
-        msgs.push(error.message || 'Network error');
-      } else {
-        const data = error.response.data;
-        if (!data) {
-          if (error.response.statusText) msgs.push(error.response.statusText);
-        } else if (typeof data === 'string') {
-          msgs.push(data);
-        } else if (data.message) {
-          msgs.push(data.message);
-        } else if (data.error) {
-          if (typeof data.error === 'string') msgs.push(data.error);
-          else if (data.error.message) msgs.push(data.error.message);
-        } else if (data.detail) {
-          msgs.push(data.detail);
-        } else if (data.errors) {
-          // could be array or object
-          if (Array.isArray(data.errors)) {
-            data.errors.forEach((it) => {
-              if (typeof it === 'string') msgs.push(it);
-              else if (it && it.message) msgs.push(it.message);
-            });
-          } else if (typeof data.errors === 'object') {
-            Object.values(data.errors).forEach((val) => {
-              if (Array.isArray(val)) val.forEach((v) => msgs.push(typeof v === 'string' ? v : v.message || JSON.stringify(v)));
-              else msgs.push(typeof val === 'string' ? val : val.message || JSON.stringify(val));
+    // Check if this is a 401 error first
+    const is401 = error.response?.status === 401;
+    const hasToken = !!localStorage.getItem('access_token');
+    const isAuthCheck = error.config?.url?.includes('/auth/me');
+    
+    // For 401 errors:
+    // - If there's no token, it's expected (user not logged in) - don't show error
+    // - If there's a token but 401, it means token expired/invalid - show error and logout
+    // - For /auth/me specifically, never show error if no token (it's a check endpoint)
+    const shouldShowError = !is401 || (is401 && hasToken && !isAuthCheck);
+    
+    // Extract backend error messages and show them in toasts (only if shouldShowError)
+    if (shouldShowError) {
+      try {
+        const msgs = [];
+        if (!error.response) {
+          // Network or CORS error
+          msgs.push(error.message || 'Network error');
+        } else {
+          const data = error.response.data;
+          if (!data) {
+            if (error.response.statusText) msgs.push(error.response.statusText);
+          } else if (typeof data === 'string') {
+            msgs.push(data);
+          } else if (data.message) {
+            msgs.push(data.message);
+          } else if (data.error) {
+            if (typeof data.error === 'string') msgs.push(data.error);
+            else if (data.error.message) msgs.push(data.error.message);
+          } else if (data.detail) {
+            // For 401, check if detail is just "No autenticado" or similar - skip if no token
+            if (!is401 || hasToken) {
+              msgs.push(data.detail);
+            }
+          } else if (data.errors) {
+            // could be array or object
+            if (Array.isArray(data.errors)) {
+              data.errors.forEach((it) => {
+                if (typeof it === 'string') msgs.push(it);
+                else if (it && it.message) msgs.push(it.message);
+              });
+            } else if (typeof data.errors === 'object') {
+              Object.values(data.errors).forEach((val) => {
+                if (Array.isArray(val)) val.forEach((v) => msgs.push(typeof v === 'string' ? v : v.message || JSON.stringify(v)));
+                else msgs.push(typeof val === 'string' ? val : val.message || JSON.stringify(val));
+              });
+            }
+          } else if (typeof data === 'object') {
+            // try to collect any string values
+            Object.values(data).forEach((val) => {
+              if (typeof val === 'string') msgs.push(val);
             });
           }
-        } else if (typeof data === 'object') {
-          // try to collect any string values
-          Object.values(data).forEach((val) => {
-            if (typeof val === 'string') msgs.push(val);
-          });
         }
-      }
 
-      // show collected messages
-      const unique = [...new Set(msgs.filter(Boolean))];
-      unique.forEach((m) => toast.error(m));
-      // mark the error so callers know we've already shown backend messages
+        // show collected messages
+        const unique = [...new Set(msgs.filter(Boolean))];
+        unique.forEach((m) => toast.error(m));
+        // mark the error so callers know we've already shown backend messages
+        try {
+          error._toastsShown = true;
+          error._backendMessages = unique;
+        } catch (e) {
+          // ignore
+        }
+      } catch (e) {
+        // ignore toast errors
+        console.error('Error showing toasts from api-client interceptor', e);
+      }
+    } else {
+      // Mark that we're silently handling this expected 401
       try {
-        error._toastsShown = true;
-        error._backendMessages = unique;
+        error._silent401 = true;
+        error._toastsShown = true; // Prevent other handlers from showing toasts
       } catch (e) {
         // ignore
       }
-    } catch (e) {
-      // ignore toast errors
-      console.error('Error showing toasts from api-client interceptor', e);
     }
 
-    if (error.response?.status === 401) {
+    if (is401) {
       // Si hay un token en localStorage, probablemente el token expiró o es inválido:
       // en ese caso redirigimos a login. Si no hay token (petición pública),
       // no forzamos la redirección para permitir páginas públicas (ej. verification-code).
-      const token = localStorage.getItem('access_token');
-      if (token) {
+      if (hasToken) {
         // Dispatch redux logout so the app can react (clear state, navigate, etc.)
         try {
           store.dispatch(logoutAction());

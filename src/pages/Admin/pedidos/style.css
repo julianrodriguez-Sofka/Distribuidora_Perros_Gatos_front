@@ -57,6 +57,14 @@
   color: #111827;
 }
 
+.address-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+}
+
 .orders-table tbody tr:hover {
   background-color: #f9fafb;
 }
@@ -109,5 +117,73 @@
 .products-table th {
   font-weight: 600;
   color: #374151;
+}
+
+.cost-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #374151;
+}
+
+.cost-row:last-child {
+  border-bottom: none;
+}
+
+.cost-total {
+  font-weight: 700;
+  font-size: 18px;
+  color: #111827;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.status-change-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.status-change-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.status-change-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.status-select-modal {
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.status-select-modal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.no-transitions {
+  color: #6b7280;
+  font-style: italic;
+  margin: 8px 0;
 }
 
