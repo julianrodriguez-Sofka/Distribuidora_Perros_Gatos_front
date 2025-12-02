@@ -11,6 +11,7 @@ const AdminCarruselPage = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState(null);
+  const [imagenUrl, setImagenUrl] = useState('');
   const [enlace, setEnlace] = useState('');
   const [orden, setOrden] = useState(images.length + 1);
   const [createdBy, setCreatedBy] = useState('');
@@ -34,13 +35,17 @@ const AdminCarruselPage = () => {
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
-    if (!selected) return;
+    if (!selected) {
+      setFile(null);
+      return;
+    }
     if (!ACCEPTED_FORMATS.includes(selected.type) || selected.size > MAX_SIZE) {
       showToast('Formato o tamaño no válido. Usa JPG, PNG, SVG o WebP (máx. 10 MB).', 'error');
       setFile(null);
       return;
     }
     setFile(selected);
+    setImagenUrl(''); // Limpiar URL si se selecciona archivo
   };
 
   const handleAddImage = async (e) => {
@@ -49,21 +54,38 @@ const AdminCarruselPage = () => {
       showToast('El carrusel no puede tener más de 5 imágenes.', 'error');
       return;
     }
-    if (!file || !orden) {
-      showToast('Por favor, completa todos los campos obligatorios.', 'error');
+    if (!orden) {
+      showToast('Por favor, especifica el orden de la imagen.', 'error');
+      return;
+    }
+    if (!file && !imagenUrl) {
+      showToast('Por favor, proporciona una imagen (archivo o URL).', 'error');
+      return;
+    }
+    if (file && imagenUrl) {
+      showToast('Proporciona solo un método: archivo o URL, no ambos.', 'error');
       return;
     }
     const formData = new FormData();
-    formData.append('file', file);
+    if (file) {
+      formData.append('file', file);
+    }
+    if (imagenUrl) {
+      formData.append('imagen_url', imagenUrl);
+    }
     formData.append('orden', orden);
     formData.append('link_url', enlace);
     formData.append('created_by', createdBy);
     try {
       await carouselService.addImage(formData);
       setFile(null);
+      setImagenUrl('');
       setEnlace('');
       setOrden(images.length + 2);
       setCreatedBy('');
+      // Limpiar el input de archivo
+      const fileInput = document.querySelector('input[type="file"]');
+      if (fileInput) fileInput.value = '';
       fetchCarousel();
       showToast('Imagen añadida al carrusel.', 'success');
     } catch (error) {
@@ -178,10 +200,39 @@ const AdminCarruselPage = () => {
                 <circle cx="8.5" cy="8.5" r="1.5"/>
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
-              Imagen
+              Archivo de Imagen (opcional)
             </label>
-            <input type="file" accept=".jpg,.jpeg,.png,.svg,.webp" onChange={handleFileChange} required />
+            <input 
+              type="file" 
+              accept=".jpg,.jpeg,.png,.svg,.webp" 
+              onChange={handleFileChange}
+              disabled={!!imagenUrl}
+            />
             <small>JPG, PNG, SVG o WebP (máx. 10MB)</small>
+          </div>
+          <div className="form-group">
+            <label>
+              <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+              URL de Imagen (opcional)
+            </label>
+            <input 
+              type="text" 
+              placeholder="https://ejemplo.com/imagen.jpg" 
+              value={imagenUrl} 
+              onChange={e => {
+                setImagenUrl(e.target.value);
+                if (e.target.value && file) {
+                  setFile(null);
+                  const fileInput = document.querySelector('input[type="file"]');
+                  if (fileInput) fileInput.value = '';
+                }
+              }}
+              disabled={!!file}
+            />
+            <small>Proporciona una URL de imagen o sube un archivo</small>
           </div>
           <div className="form-group">
             <label>

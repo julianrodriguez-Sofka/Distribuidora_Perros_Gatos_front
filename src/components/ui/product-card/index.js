@@ -1,50 +1,18 @@
 import React from 'react';
 import './style.css';
-import { Button } from '../index';
+import { Button } from '../button';
+import StarRating from '../star-rating';
 import { formatPrice, formatWeight } from '../../../utils/validation';
 import { useContext } from 'react';
 import CartContext from '../../../modules/cart/context/CartContext';
-
-// Componente de calificación por estrellas
-const StarRating = ({ rating = 0, maxStars = 5 }) => {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 >= 0.5;
-  const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
-
-  return (
-    <div className="star-rating" role="img" aria-label={`Calificación: ${rating} de ${maxStars} estrellas`}>
-      {[...Array(fullStars)].map((_, i) => (
-        <svg key={`full-${i}`} className="star star-full" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-        </svg>
-      ))}
-      {hasHalfStar && (
-        <svg className="star star-half" viewBox="0 0 24 24">
-          <defs>
-            <linearGradient id="half-grad">
-              <stop offset="50%" stopColor="#FBBF24"/>
-              <stop offset="50%" stopColor="#E5E7EB"/>
-            </linearGradient>
-          </defs>
-          <path fill="url(#half-grad)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-        </svg>
-      )}
-      {[...Array(emptyStars)].map((_, i) => (
-        <svg key={`empty-${i}`} className="star star-empty" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-        </svg>
-      ))}
-      <span className="rating-text">({rating.toFixed(1)})</span>
-    </div>
-  );
-};
 
 const ProductCard = ({ product, onAddToCart }) => {
   const isOutOfStock = product.stock === 0;
   const isLowStock = product.stock > 0 && product.stock <= 10;
   
-  // Generar calificación aleatoria si no existe (entre 3.5 y 5)
-  const rating = product.rating || (Math.random() * 1.5 + 3.5);
+  // Usar calificación del producto o 0 si no existe
+  const rating = product.promedio_calificacion || 0;
+  const totalReviews = product.total_calificaciones || 0;
   
   // Calcular descuento si existe precio original
   const hasDiscount = product.precio_original && product.precio_original > product.precio;
@@ -114,7 +82,7 @@ const ProductCard = ({ product, onAddToCart }) => {
         <h3 className="cc-product-name">{product.nombre}</h3>
         
         {/* Rating */}
-        <StarRating rating={rating} />
+        <StarRating rating={rating} totalReviews={totalReviews} size="small" />
         
         {/* Precio */}
         <div className="cc-product-price-container">

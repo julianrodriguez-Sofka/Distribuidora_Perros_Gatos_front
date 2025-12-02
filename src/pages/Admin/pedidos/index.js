@@ -35,12 +35,7 @@ export const AdminPedidosPage = () => {
     try {
       dispatch({ type: 'FETCH_ORDERS_REQUEST' });
       const data = await pedidosService.getAllOrders();
-      // Agregar nombre del cliente basado en usuario_id
-      const ordersWithClient = data.map(order => ({
-        ...order,
-        clienteNombre: `Cliente #${order.usuario_id}` // Placeholder hasta que tengamos endpoint de usuarios
-      }));
-      dispatch({ type: 'FETCH_ORDERS_SUCCESS', payload: ordersWithClient });
+      dispatch({ type: 'FETCH_ORDERS_SUCCESS', payload: data });
     } catch (error) {
       console.error('Error loading orders:', error);
       dispatch({ type: 'FETCH_ORDERS_FAILURE', payload: error.message });
@@ -55,13 +50,7 @@ export const AdminPedidosPage = () => {
   const handleViewOrder = async (orderId) => {
     try {
       const order = await pedidosService.getAdminOrderById(orderId);
-      // Agregar información del cliente
-      const orderWithClient = {
-        ...order,
-        clienteNombre: `Cliente #${order.usuario_id}`,
-        clienteId: order.usuario_id
-      };
-      setSelectedOrder(orderWithClient);
+      setSelectedOrder(order);
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error loading order:', error);
@@ -284,7 +273,7 @@ export const AdminPedidosPage = () => {
             <div className="order-detail-section">
               <h3>Cliente</h3>
               <p><strong>Nombre:</strong> {selectedOrder.clienteNombre}</p>
-              <p><strong>ID:</strong> {selectedOrder.clienteId}</p>
+              <p><strong>ID:</strong> {selectedOrder.usuario_id}</p>
             </div>
             
             <div className="order-detail-section">

@@ -14,6 +14,7 @@ const EditarProductoPage = () => {
   const [form, setForm] = useState({ nombre: '', descripcion: '', precio: '', peso_gramos: '', stock: '', categoria: '', subcategoria: '', imagenFile: null, imagenUrl: '' });
   const [imagenMode, setImagenMode] = useState("file"); // "file" o "url"
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [imagenEliminada, setImagenEliminada] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -68,6 +69,7 @@ const EditarProductoPage = () => {
       if (file) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
+        setImagenEliminada(false);
       } else {
         setPreviewUrl(null);
       }
@@ -76,8 +78,19 @@ const EditarProductoPage = () => {
       // Si es el campo de URL, actualizar preview
       if (e.target.name === 'imagenUrl' && e.target.value.trim()) {
         setPreviewUrl(e.target.value);
+        setImagenEliminada(false);
       }
     }
+  };
+
+  const handleLimpiarImagen = () => {
+    setPreviewUrl(null);
+    setForm({ ...form, imagenFile: null, imagenUrl: '' });
+    setImagenEliminada(true);
+    // Limpiar el input de archivo
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
+    toast.success('Imagen eliminada. Recuerda guardar los cambios.');
   };
 
   const handleSubmit = async (e) => {
@@ -93,14 +106,18 @@ const EditarProductoPage = () => {
         cantidad_disponible: form.stock ? Number(form.stock) : undefined,
       };
       
-      // Siempre agregar imagen según el modo seleccionado
-      // Esto asegura que las imágenes existentes se eliminen y se actualicen correctamente
-      if (imagenMode === "file" && form.imagenFile) {
+      // Manejar la imagen según el estado
+      if (imagenEliminada) {
+        // Si se eliminó la imagen, enviar cadena vacía
+        payload.imagenUrl = '';
+      } else if (form.imagenFile) {
+        // Si hay un archivo nuevo, enviarlo (tiene prioridad)
         payload.imagenFile = form.imagenFile;
-      } else if (imagenMode === "url") {
-        // Enviar imagenUrl incluso si está vacío para eliminar imágenes existentes
-        payload.imagenUrl = form.imagenUrl || '';
+      } else if (imagenMode === "url" && form.imagenUrl) {
+        // Si hay una URL nueva, enviarla
+        payload.imagenUrl = form.imagenUrl;
       }
+      
       // Remove undefined fields so backend keeps existing values when not provided
       Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
 
@@ -108,6 +125,7 @@ const EditarProductoPage = () => {
       toast.success('Producto actualizado');
       navigate('/admin/productos');
     } catch (error) {
+        console.error('Error al actualizar producto:', error);
         if (!error?._toastsShown) toast.error('Error al actualizar producto');
     }
   };
@@ -152,6 +170,16 @@ const EditarProductoPage = () => {
           {previewUrl ? (
             <div style={{ marginBottom: 8 }}>
               <img src={previewUrl} alt="preview" style={{ maxWidth: 260, maxHeight: 180, objectFit: 'cover', borderRadius: 6 }} />
+              <div style={{ marginTop: 8 }}>
+                <button 
+                  type="button" 
+                  onClick={handleLimpiarImagen}
+                  className="btn-eliminar"
+                  style={{ fontSize: '14px', padding: '6px 12px' }}
+                >
+                  🗑️ Eliminar imagen
+                </button>
+              </div>
             </div>
           ) : (
             <div style={{ color: '#6b7280', marginBottom: 8 }}>No hay imagen</div>

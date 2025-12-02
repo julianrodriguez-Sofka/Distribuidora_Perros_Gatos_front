@@ -150,6 +150,9 @@ apiClient.interceptors.response.use(
       // no forzamos la redirección para permitir páginas públicas (ej. verification-code).
       const token = localStorage.getItem('access_token');
       if (token) {
+        // Clear auth data
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
         // Dispatch redux logout so the app can react (clear state, navigate, etc.)
         try {
           store.dispatch(logoutAction());

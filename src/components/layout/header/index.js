@@ -49,7 +49,7 @@ export const Header = () => {
             <span className="cart-text">Carrito</span>
           </Link>
 
-          {isAuthenticated && !isAdmin && (
+          {isAuthenticated && (
             <Link to="/mis-pedidos" className="header-cart-link" aria-label="Mis pedidos">
               <span className="cart-icon-wrapper">
                 <svg className="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

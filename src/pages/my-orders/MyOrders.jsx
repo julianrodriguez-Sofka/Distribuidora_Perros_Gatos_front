@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { pedidosService } from '../../services/pedidos-service';
+import RatingModal from '../../components/RatingModal';
+import { Button } from '../../components/ui/index';
 import './MyOrders.css';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedPedidoId, setSelectedPedidoId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,6 +75,17 @@ const MyOrders = () => {
       currency: 'COP',
       minimumFractionDigits: 0
     }).format(amount);
+  };
+
+  const handleRateProduct = (producto, pedidoId) => {
+    setSelectedProduct(producto);
+    setSelectedPedidoId(pedidoId);
+    setIsRatingModalOpen(true);
+  };
+
+  const handleRatingSuccess = () => {
+    // Recargar pedidos para reflejar que ya fue calificado
+    loadOrders();
   };
 
   const COSTO_ENVIO = 5000; // Costo de envío estándar en COP
@@ -257,9 +273,27 @@ const MyOrders = () => {
                         <div className="item-details">
                           <p className="item-name">{item.producto_nombre || `Producto #${item.producto_id}`}</p>
                           <p className="item-quantity">Cantidad: {item.cantidad}</p>
+                          <p className="item-price-mobile">{formatCurrency(item.precio_unitario * item.cantidad)}</p>
                         </div>
-                        <div className="item-price">
-                          {formatCurrency(item.precio_unitario * item.cantidad)}
+                        <div className="item-right">
+                          <div className="item-price">
+                            {formatCurrency(item.precio_unitario * item.cantidad)}
+                          </div>
+                          {order.estado === 'Entregado' && (
+                            <div className="item-actions">
+                              <Button
+                                variant="outline"
+                                size="small"
+                                onClick={() => handleRateProduct({
+                                  id: item.producto_id,
+                                  nombre: item.producto_nombre || `Producto #${item.producto_id}`,
+                                  imagen: item.producto_imagen
+                                }, order.id)}
+                              >
+                                ⭐ Calificar
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -270,6 +304,15 @@ const MyOrders = () => {
           ))}
         </div>
       )}
+
+      {/* Rating Modal */}
+      <RatingModal
+        isOpen={isRatingModalOpen}
+        onClose={() => setIsRatingModalOpen(false)}
+        producto={selectedProduct}
+        pedidoId={selectedPedidoId}
+        onSuccess={handleRatingSuccess}
+      />
     </div>
   );
 };
