@@ -22,7 +22,7 @@ try {
 
 Write-Host ""
 
-# Crear archivo .env
+# Crear archivo .env (SIEMPRE crear desde .env.example si no existe)
 Write-Host "✓ Configurando archivo de entorno..." -ForegroundColor Yellow
 
 if (Test-Path ".env") {
@@ -30,14 +30,18 @@ if (Test-Path ".env") {
 } else {
     if (Test-Path ".env.example") {
         Copy-Item ".env.example" ".env"
-        Write-Host "  ✓ Creado .env" -ForegroundColor Green
+        Write-Host "  ✓ Creado .env desde .env.example" -ForegroundColor Green
     } else {
         # Crear .env con valores por defecto
         @"
-REACT_APP_API_URL=http://localhost:8000
-REACT_APP_API_BASE_URL=http://localhost:8000/api
+# API Configuration
+REACT_APP_API_URL=http://localhost:8000/api
+
+# Environment
+REACT_APP_ENV=development
 "@ | Set-Content ".env"
         Write-Host "  ✓ Creado .env con configuración por defecto" -ForegroundColor Green
+        Write-Host "  ⚠ No se encontró .env.example, usando configuración por defecto" -ForegroundColor Yellow
     }
 }
 
