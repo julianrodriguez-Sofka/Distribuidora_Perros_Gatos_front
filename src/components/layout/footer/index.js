@@ -7,9 +7,9 @@ export const Footer = () => {
   // Configuración de redes sociales (puedes modificar estos enlaces)
   const socialLinks = {
     email: 'contacto@distribuidoraperrosygatos.com',
-    whatsapp: 'https://wa.me/573001234567', // Reemplaza con tu número de WhatsApp
-    facebook: 'https://www.facebook.com/distribuidoraperrosygatos',
-    instagram: 'https://www.instagram.com/distribuidoraperrosygatos'
+    whatsapp: 'https://wa.me/573001234567',
+    facebook: 'https://www.facebook.com/profile.php?id=61584334213289',
+    instagram: 'https://www.instagram.com/sofkpetplace/'
   };
 
   return (
