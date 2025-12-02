@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../../services/api-client';
+import { StarRating } from '../../../components/ui';
 import './style.css';
 
 export const AdminInventarioPage = () => {
@@ -14,7 +15,10 @@ export const AdminInventarioPage = () => {
     pedidosCancelados: 0,
     totalProductos: 0,
     totalCategorias: 0,
-    categorias: []
+    categorias: [],
+    mejorProducto: null,
+    peorProducto: null,
+    totalCalificaciones: 0
   });
   const [error, setError] = useState(null);
 
@@ -109,6 +113,29 @@ export const AdminInventarioPage = () => {
         };
       }) : [];
 
+      // Calcular estadísticas de calificaciones
+      const productosCalificados = products.filter(p => 
+        p.total_calificaciones > 0 && p.promedio_calificacion > 0
+      );
+      
+      let mejorProducto = null;
+      let peorProducto = null;
+      let totalCalificaciones = 0;
+
+      if (productosCalificados.length > 0) {
+        // Ordenar por promedio de calificación
+        const productosOrdenados = [...productosCalificados].sort((a, b) => 
+          b.promedio_calificacion - a.promedio_calificacion
+        );
+        
+        mejorProducto = productosOrdenados[0];
+        peorProducto = productosOrdenados[productosOrdenados.length - 1];
+        
+        totalCalificaciones = products.reduce((sum, p) => 
+          sum + (p.total_calificaciones || 0), 0
+        );
+      }
+
       setStats({
         totalClientes: clientes.length,
         totalIngresos: totalIngresos,
@@ -119,7 +146,10 @@ export const AdminInventarioPage = () => {
         pedidosCancelados: pedidosCancelados,
         totalProductos: products.length,
         totalCategorias: categories.length,
-        categorias: categoriaStats.sort((a, b) => b.ventas - a.ventas)
+        categorias: categoriaStats.sort((a, b) => b.ventas - a.ventas),
+        mejorProducto,
+        peorProducto,
+        totalCalificaciones
       });
     } catch (err) {
       console.error('Error loading statistics:', err);
@@ -246,6 +276,74 @@ export const AdminInventarioPage = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Ratings Section */}
+      <div className="ratings-section">
+        <h2 className="section-title">Calificaciones de Productos</h2>
+        
+        {stats.totalCalificaciones === 0 ? (
+          <div className="no-data">
+            <p>Aún no hay productos calificados</p>
+          </div>
+        ) : (
+          <div className="ratings-grid">
+            <div className="rating-card rating-best">
+              <div className="rating-icon">🏆</div>
+              <div className="rating-content">
+                <h3 className="rating-label">Mejor Calificado</h3>
+                {stats.mejorProducto ? (
+                  <>
+                    <p className="rating-product-name">{stats.mejorProducto.nombre}</p>
+                    <div className="rating-stars-display">
+                      <StarRating 
+                        rating={stats.mejorProducto.promedio_calificacion} 
+                        totalRatings={stats.mejorProducto.total_calificaciones}
+                        interactive={false}
+                        size={20}
+                        showCount={true}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <p className="rating-no-data">Sin datos</p>
+                )}
+              </div>
+            </div>
+
+            <div className="rating-card rating-worst">
+              <div className="rating-icon">⚠️</div>
+              <div className="rating-content">
+                <h3 className="rating-label">Menor Calificado</h3>
+                {stats.peorProducto ? (
+                  <>
+                    <p className="rating-product-name">{stats.peorProducto.nombre}</p>
+                    <div className="rating-stars-display">
+                      <StarRating 
+                        rating={stats.peorProducto.promedio_calificacion} 
+                        totalRatings={stats.peorProducto.total_calificaciones}
+                        interactive={false}
+                        size={20}
+                        showCount={true}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <p className="rating-no-data">Sin datos</p>
+                )}
+              </div>
+            </div>
+
+            <div className="rating-card rating-total">
+              <div className="rating-icon">⭐</div>
+              <div className="rating-content">
+                <h3 className="rating-label">Total Calificaciones</h3>
+                <p className="rating-value">{stats.totalCalificaciones}</p>
+                <span className="rating-description">En todos los productos</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Category Sales */}

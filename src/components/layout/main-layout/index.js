@@ -2,6 +2,7 @@ import React from 'react';
 import { Header } from '../header';
 import { Footer } from '../footer';
 import { ToastContainer } from '../../ui/toast';
+import { Chatbot } from '../../chatbot';
 import { useToast } from '../../../hooks/use-toast';
 import './style.css';
 
@@ -20,6 +21,7 @@ export const MainLayout = ({ children }) => {
       </main>
       <Footer />
       <ToastContainer toasts={toasts} onRemove={handleRemoveToast} />
+      <Chatbot />
     </div>
   );
 };

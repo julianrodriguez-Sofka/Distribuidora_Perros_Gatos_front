@@ -12,6 +12,7 @@ const adminMenuItems = [
   { path: '/admin/productos', label: 'Productos', icon: '🛍️' },
   { path: '/admin/categorias', label: 'Categorías', icon: '📁' },
   { path: '/admin/carrusel', label: 'Carrusel', icon: '🖼️' },
+  { path: '/admin/calificaciones', label: 'Calificaciones', icon: '⭐' },
   { path: '/admin/estadisticas', label: 'Estadísticas', icon: '📊' },
 ];
 

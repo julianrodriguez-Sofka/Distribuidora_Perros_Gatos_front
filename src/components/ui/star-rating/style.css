@@ -1,0 +1,133 @@
+/* StarRating Component - Estrellas visibles y atractivas */
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.star-rating__stars {
+  display: inline-flex;
+  gap: 4px;
+  transition: opacity 0.2s;
+}
+
+.star-rating__stars--interactive {
+  cursor: pointer;
+}
+
+/* Botón de estrella individual */
+.star-rating__star {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.star-rating__star:disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* SVG de estrella */
+.star-rating__star-svg {
+  width: 100%;
+  height: 100%;
+  color: #718096; /* Gris oscuro para estrellas vacías - MUY VISIBLE */
+  transition: all 0.2s ease;
+}
+
+/* Estrella llena - NARANJA OSCURO MUY VISIBLE */
+.star-rating__star--filled .star-rating__star-svg {
+  color: #F97316; /* Naranja oscuro intenso y visible */
+}
+
+/* Estrella parcial */
+.star-rating__star--partial .star-rating__star-svg {
+  color: #F97316;
+}
+
+/* Hover en estrellas interactivas */
+.star-rating__stars--interactive .star-rating__star:hover .star-rating__star-svg,
+.star-rating__stars--interactive .star-rating__star:focus .star-rating__star-svg {
+  color: #F97316;
+  transform: scale(1.1);
+}
+
+.star-rating__stars--interactive .star-rating__star:active .star-rating__star-svg {
+  transform: scale(0.95);
+}
+
+/* Contador de calificaciones */
+.star-rating__count {
+  font-size: 14px;
+  color: #4A5568; /* Gris oscuro para buena legibilidad */
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Label para calificación interactiva */
+.star-rating__label {
+  font-size: 13px;
+  color: #F97316; /* Naranja oscuro igual a estrellas */
+  font-weight: 600;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+/* Tamaños variantes */
+.star-rating--small .star-rating__star {
+  width: 18px;
+  height: 18px;
+}
+
+.star-rating--small .star-rating__count {
+  font-size: 12px;
+}
+
+.star-rating--medium .star-rating__star {
+  width: 24px;
+  height: 24px;
+}
+
+.star-rating--large .star-rating__star {
+  width: 32px;
+  height: 32px;
+}
+
+.star-rating--large .star-rating__count {
+  font-size: 16px;
+}
+
+/* Animación sutil */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.star-rating {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Accesibilidad */
+.star-rating__star:focus {
+  outline: 2px solid #F97316;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.star-rating__star:focus:not(:focus-visible) {
+  outline: none;
+}

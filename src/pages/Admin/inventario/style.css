@@ -463,3 +463,132 @@
   background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
 }
 
+/* Ratings Section */
+.ratings-section {
+  margin-bottom: 2rem;
+}
+
+.ratings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.rating-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 1rem;
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.rating-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.rating-icon {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.rating-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rating-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rating-product-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rating-stars-display {
+  margin-top: 0.25rem;
+}
+
+.rating-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.rating-description {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.rating-no-data {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Rating card specific styles */
+.rating-best {
+  border-left-color: #F97316;
+}
+
+.rating-best .rating-icon {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+}
+
+.rating-worst {
+  border-left-color: #ef4444;
+}
+
+.rating-worst .rating-icon {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+}
+
+.rating-total {
+  border-left-color: #fbbf24;
+}
+
+.rating-total .rating-icon {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ratings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .rating-card {
+    padding: 1rem;
+  }
+  
+  .rating-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+  }
+}
+

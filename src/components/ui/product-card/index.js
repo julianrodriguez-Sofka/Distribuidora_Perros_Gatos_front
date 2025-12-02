@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './style.css';
-import { Button } from '../index';
+import { Button, StarRating } from '../index';
 import { formatPrice, formatWeight } from '../../../utils/validation';
 import { useContext } from 'react';
 import CartContext from '../../../modules/cart/context/CartContext';
+import { calificacionesService } from '../../../services/calificaciones-service';
+import { toast } from '../../../utils/toast';
 
 const ProductCard = ({ product, onAddToCart }) => {
   const isOutOfStock = product.stock === 0;
+  const [rating, setRating] = useState(product.promedio_calificacion || 0);
+  const [totalRatings, setTotalRatings] = useState(product.total_calificaciones || 0);
 
   // try to get cart add function from CartContext (optional)
   const ctx = useContext(CartContext);
@@ -16,6 +20,24 @@ const ProductCard = ({ product, onAddToCart }) => {
     if (onAddToCart) return onAddToCart(product);
     if (addFromCtx) return addFromCtx(product, 1);
     console.warn('Add to cart not available: provide onAddToCart or wrap app with CartProvider');
+  };
+
+  const handleRate = async (newRating) => {
+    try {
+      await calificacionesService.crearCalificacion(product.id, newRating);
+      
+      // Actualizar el rating local optimísticamente
+      const newTotal = totalRatings + 1;
+      const newAverage = ((rating * totalRatings) + newRating) / newTotal;
+      
+      setRating(Math.round(newAverage * 10) / 10);
+      setTotalRatings(newTotal);
+      
+      toast.success('¡Gracias por tu calificación!');
+    } catch (error) {
+      console.error('Error al calificar:', error);
+      toast.error('Error al registrar tu calificación. Por favor intenta de nuevo.');
+    }
   };
 
   return (
@@ -54,6 +76,19 @@ const ProductCard = ({ product, onAddToCart }) => {
       </div>
       <div className="cc-product-body">
         <h3 className="cc-product-name">{product.nombre}</h3>
+        
+        {/* Rating Section */}
+        <div className="cc-product-rating">
+          <StarRating
+            rating={rating}
+            totalRatings={totalRatings}
+            interactive={true}
+            onRate={handleRate}
+            size="small"
+            showCount={true}
+          />
+        </div>
+
         <p className="cc-product-price">{formatPrice(product.precio)}</p>
         <p className="cc-product-weight">{formatWeight(product.peso)}</p>
         <p className="cc-product-stock">{isOutOfStock ? 'Sin existencias' : `Disponible: ${product.stock} unidades`}</p>

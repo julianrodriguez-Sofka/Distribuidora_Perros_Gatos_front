@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { productosService } from '../../../services/productos-service';
 import { useToast } from '../../../hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { StarRating } from '../../../components/ui';
 import './style.css';
 
 const ListarProductos = () => {
@@ -59,7 +60,7 @@ const ListarProductos = () => {
       {loading ? (
         <p>Cargando...</p>
       ) : (
-        <table className="productos-table">
+          <table className="productos-table">
           <thead>
             <tr>
               <th>Imagen</th>
@@ -68,13 +69,14 @@ const ListarProductos = () => {
               <th>Categoría</th>
               <th>Precio</th>
               <th>Stock</th>
+              <th>Calificación</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {productos.length === 0 ? (
               <tr>
-                <td colSpan="7">No hay productos</td>
+                <td colSpan="8">No hay productos</td>
               </tr>
             ) : (
               productos.map((prod) => {
@@ -103,6 +105,17 @@ const ListarProductos = () => {
                     <td>{prod.categoria?.nombre || (typeof prod.categoria === 'string' ? prod.categoria : '')}</td>
                     <td>{prod.precio}</td>
                     <td>{prod.cantidad_disponible}</td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <StarRating 
+                          rating={prod.promedio_calificacion || 0} 
+                          totalRatings={prod.total_calificaciones || 0}
+                          interactive={false}
+                          size={16}
+                          showCount={true}
+                        />
+                      </div>
+                    </td>
                     <td>
                       <button className="btn-editar" onClick={() => navigate(`/admin/productos/editar/${prod.id}`)}>Editar</button>
                       {' '}

@@ -20,6 +20,7 @@ import EditarProductoPage from './pages/Admin/productos/editar';
 import { AdminCategoriasPage } from './pages/Admin/categorias';
 import AdminCarruselPage from './pages/Admin/carrusel';
 import { AdminInventarioPage } from './pages/Admin/inventario';
+import { ListarCalificaciones } from './pages/Admin/calificaciones';
 import { NotFoundPage } from './pages/not-found';
 import VerifyEmailPage from './pages/verify-email';
 import { authService } from './services/auth-service';
@@ -240,6 +241,16 @@ function App() {
           <ProtectedRoute requireAdmin>
             <AdminLayout>
               <AdminInventarioPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/calificaciones"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <ListarCalificaciones />
             </AdminLayout>
           </ProtectedRoute>
         }
