@@ -34,6 +34,16 @@
   transform: translateY(-2px);
 }
 
+.header-logo .logo-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(124,58,237,0.3));
+  animation: float 3s ease-in-out infinite;
+  mix-blend-mode: multiply;
+  background: transparent;
+}
+
 .header-logo .logo-icon {
   font-size: 32px;
   filter: drop-shadow(0 2px 4px rgba(124,58,237,0.3));
@@ -52,7 +62,7 @@
 }
 
 .header-logo .logo-main {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   background: linear-gradient(135deg, #7C3AED, #A78BFA);
   -webkit-background-clip: text;

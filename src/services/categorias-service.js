@@ -1,6 +1,12 @@
 import apiClient, { apiClient2 } from './api-client';
 
 export const categoriasService = {
+  // Fetch all categories (public - no authentication required)
+  async getAllPublic() {
+    const response = await apiClient.get('/home/categorias');
+    return response.data;
+  },
+
   // Fetch all categories (admin listing)
   async getAll() {
     const response = await apiClient.get('/admin/categorias');
