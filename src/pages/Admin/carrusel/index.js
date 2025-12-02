@@ -113,64 +113,215 @@ const AdminCarruselPage = () => {
 
   return (
     <div className="admin-carrusel-page">
-      <h2>Gestión del Carrusel</h2>
+      <div className="page-header">
+        <div className="page-badge">🎨 Gestión Visual</div>
+        <div className="page-title-wrapper">
+          <svg className="page-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+          <h2 className="page-title">Gestión del Carrusel</h2>
+        </div>
+        <p className="page-subtitle">Administra las imágenes del carrusel principal (máximo 5)</p>
+      </div>
+
       <div className="carrusel-preview">
-        <h3>Vista previa</h3>
+        <div className="preview-header">
+          <svg className="preview-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <h3>Vista Previa</h3>
+        </div>
         {images.length === 0 ? (
-          <p>No hay imágenes en el carrusel.</p>
+          <div className="empty-state">
+            <svg className="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <p>No hay imágenes en el carrusel.</p>
+          </div>
         ) : (
           <div className="carrusel-thumbs">
             {images.sort((a, b) => a.orden - b.orden).map(img => (
               <div key={img.id} className="carrusel-thumb">
+                <div className="thumb-badge">{img.orden}</div>
                 <img src={typeof img.imagen_url === 'string' && img.imagen_url ? (img.imagen_url.startsWith('http') ? img.imagen_url : `http://localhost:8000${img.imagen_url}`) : '/no-image.svg'} alt="miniatura" />
-                <span>Orden: {img.orden}</span>
-                {img.link_url && <a href={img.link_url} target="_blank" rel="noopener noreferrer">Enlace</a>}
+                {img.link_url && (
+                  <div className="thumb-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    Enlace activo
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
       <form className="carrusel-form" onSubmit={handleAddImage}>
-        <h3>Añadir imagen</h3>
-        <input type="file" accept=".jpg,.jpeg,.png,.svg,.webp" onChange={handleFileChange} required />
-        <input type="number" min="1" max="5" placeholder="Orden (1-5)" value={orden} onChange={e => setOrden(e.target.value)} required />
-        <input type="text" placeholder="Enlace (URL) opcional" value={enlace} onChange={e => setEnlace(e.target.value)} />
-        <input type="text" placeholder="Creado por (opcional)" value={createdBy} onChange={e => setCreatedBy(e.target.value)} />
-        <button type="submit">Añadir al Carrusel</button>
+        <div className="form-header">
+          <svg className="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <h3>Añadir Nueva Imagen</h3>
+        </div>
+        <div className="form-grid">
+          <div className="form-group">
+            <label>
+              <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              Imagen
+            </label>
+            <input type="file" accept=".jpg,.jpeg,.png,.svg,.webp" onChange={handleFileChange} required />
+            <small>JPG, PNG, SVG o WebP (máx. 10MB)</small>
+          </div>
+          <div className="form-group">
+            <label>
+              <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+              Orden
+            </label>
+            <input type="number" min="1" max="5" placeholder="1-5" value={orden} onChange={e => setOrden(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label>
+              <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+              Enlace (opcional)
+            </label>
+            <input type="text" placeholder="https://..." value={enlace} onChange={e => setEnlace(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>
+              <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              Creado por (opcional)
+            </label>
+            <input type="text" placeholder="Nombre" value={createdBy} onChange={e => setCreatedBy(e.target.value)} />
+          </div>
+        </div>
+        <button type="submit" className="btn-submit">
+          <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Añadir al Carrusel
+        </button>
       </form>
       <div className="carrusel-list">
-        <h3>Imágenes actuales</h3>
-        {images.length === 0 ? (
-          <p>No hay imágenes en el carrusel.</p>
+        <div className="list-header">
+          <svg className="list-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          <h3>Imágenes Actuales</h3>
+        </div>
+        {loading ? (
+          <div className="loading-state">
+            <div className="loading-spinner"></div>
+            <p>Cargando imágenes...</p>
+          </div>
+        ) : images.length === 0 ? (
+          <div className="empty-state">
+            <svg className="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <p>No hay imágenes en el carrusel.</p>
+          </div>
         ) : (
-          <table className="carrusel-table">
-            <thead>
-              <tr>
-                <th>Miniatura</th>
-                <th>Orden</th>
-                <th>Enlace</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {images.sort((a, b) => a.orden - b.orden).map(img => (
-                <tr key={img.id}>
-                  <td><img src={typeof img.imagen_url === 'string' && img.imagen_url ? (img.imagen_url.startsWith('http') ? img.imagen_url : `http://localhost:8000${img.imagen_url}`) : '/no-image.svg'} alt="miniatura" className="thumb-img" /></td>
-                  <td>
-                    <input type="number" min="1" max="5" value={img.orden} onChange={e => handleOrderChange(img.id, e.target.value)} />
-                  </td>
-                  <td>
-                    <input type="text" value={img.link_url || ''} onChange={e => handleEnlaceChange(img.id, e.target.value)} onBlur={e => handleUpdateEnlace(img.id, e.target.value)} />
-                  </td>
-                  <td>
-                    <button className="btn-eliminar" onClick={() => handleDelete(img.id)}>Eliminar</button>
-                  </td>
+          <>
+            <table className="carrusel-table">
+              <thead>
+                <tr>
+                  <th>
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    </svg>
+                    Miniatura
+                  </th>
+                  <th>
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="8" y1="6" x2="21" y2="6"/>
+                      <line x1="8" y1="12" x2="21" y2="12"/>
+                      <line x1="8" y1="18" x2="21" y2="18"/>
+                    </svg>
+                    Orden
+                  </th>
+                  <th>
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    </svg>
+                    Enlace
+                  </th>
+                  <th>
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="1"/>
+                      <circle cx="19" cy="12" r="1"/>
+                      <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                    Acciones
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {images.sort((a, b) => a.orden - b.orden).map(img => (
+                  <tr key={img.id}>
+                    <td>
+                      <div className="table-image-wrapper">
+                        <img src={typeof img.imagen_url === 'string' && img.imagen_url ? (img.imagen_url.startsWith('http') ? img.imagen_url : `http://localhost:8000${img.imagen_url}`) : '/no-image.svg'} alt="miniatura" className="thumb-img" />
+                      </div>
+                    </td>
+                    <td>
+                      <input type="number" min="1" max="5" value={img.orden} onChange={e => handleOrderChange(img.id, e.target.value)} className="table-input" />
+                    </td>
+                    <td>
+                      <input type="text" value={img.link_url || ''} onChange={e => handleEnlaceChange(img.id, e.target.value)} onBlur={e => handleUpdateEnlace(img.id, e.target.value)} className="table-input" placeholder="https://..." />
+                    </td>
+                    <td>
+                      <button className="btn-eliminar" onClick={() => handleDelete(img.id)}>
+                        <svg className="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button className="btn-guardar" onClick={handleSaveOrder}>
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Guardar Cambios de Orden
+            </button>
+          </>
         )}
-        <button className="btn-guardar" onClick={handleSaveOrder}>Guardar cambios de orden</button>
       </div>
     </div>
   );

@@ -168,16 +168,38 @@ export const AdminInventarioPage = () => {
   return (
     <div className="admin-estadisticas-page">
       <div className="page-header">
-        <h1 className="page-title">📊 Estadísticas del Negocio</h1>
+        <div>
+          <div className="page-badge">📈 Panel de Control</div>
+          <div className="page-title-wrapper">
+            <svg className="page-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            <h1 className="page-title">Estadísticas del Negocio</h1>
+          </div>
+        </div>
         <button onClick={loadStatistics} className="btn-refresh">
-          🔄 Actualizar
+          <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          Actualizar
         </button>
       </div>
 
       {/* Main Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card stat-clientes">
-          <div className="stat-icon">👥</div>
+          <div className="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
           <div className="stat-content">
             <h3 className="stat-label">Total Clientes</h3>
             <p className="stat-value">{stats.totalClientes}</p>
@@ -186,7 +208,12 @@ export const AdminInventarioPage = () => {
         </div>
 
         <div className="stat-card stat-ingresos">
-          <div className="stat-icon">💰</div>
+          <div className="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
           <div className="stat-content">
             <h3 className="stat-label">Ingresos Totales</h3>
             <p className="stat-value">{formatCurrency(stats.totalIngresos)}</p>
@@ -195,7 +222,12 @@ export const AdminInventarioPage = () => {
         </div>
 
         <div className="stat-card stat-promedio">
-          <div className="stat-icon">💳</div>
+          <div className="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+              <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+          </div>
           <div className="stat-content">
             <h3 className="stat-label">Ticket Promedio</h3>
             <p className="stat-value">
@@ -211,7 +243,12 @@ export const AdminInventarioPage = () => {
         <h2 className="section-title">Total Pedidos</h2>
         <div className="orders-status-grid">
           <div className="status-card status-pendiente">
-            <div className="status-icon">⏳</div>
+            <div className="status-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
             <div className="status-content">
               <h3 className="status-label">Pendientes</h3>
               <p className="status-value">{stats.pedidosPendientes}</p>
@@ -220,7 +257,14 @@ export const AdminInventarioPage = () => {
           </div>
 
           <div className="status-card status-enviado">
-            <div className="status-icon">🚚</div>
+            <div className="status-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </div>
             <div className="status-content">
               <h3 className="status-label">Enviados</h3>
               <p className="status-value">{stats.pedidosEnviados}</p>
@@ -229,7 +273,12 @@ export const AdminInventarioPage = () => {
           </div>
 
           <div className="status-card status-entregado">
-            <div className="status-icon">✅</div>
+            <div className="status-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
             <div className="status-content">
               <h3 className="status-label">Entregados</h3>
               <p className="status-value">{stats.pedidosEntregados}</p>
@@ -238,7 +287,13 @@ export const AdminInventarioPage = () => {
           </div>
 
           <div className="status-card status-cancelado">
-            <div className="status-icon">❌</div>
+            <div className="status-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+            </div>
             <div className="status-content">
               <h3 className="status-label">Cancelados</h3>
               <p className="status-value">{stats.pedidosCancelados}</p>

@@ -104,9 +104,20 @@ export const CartPage = () => {
     return (
       <div className="cart-page">
         <div className="cart-empty">
+          <div className="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </div>
           <h2>Tu carrito está vacío</h2>
-          <p>Agrega productos desde el catálogo</p>
+          <p>Agrega productos desde el catálogo para empezar tu compra</p>
           <Button variant="primary" onClick={() => navigate('/')}>
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
             Ver Catálogo
           </Button>
         </div>
@@ -116,7 +127,17 @@ export const CartPage = () => {
 
   return (
     <div className="cart-page">
-      <h1 className="cart-title">Carrito de Compras</h1>
+      <div className="cart-header">
+        <div className="cart-title-wrapper">
+          <svg className="cart-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <h1 className="cart-title">Carrito de Compras</h1>
+        </div>
+        <div className="cart-count-badge">{itemCount} {itemCount === 1 ? 'producto' : 'productos'}</div>
+      </div>
       
       <div className="cart-content">
         <div className="cart-items">
@@ -135,9 +156,14 @@ export const CartPage = () => {
               />
               <div className="cart-item-details">
                 <h3 className="cart-item-name">{item.nombre}</h3>
-                <p className="cart-item-price">{formatPrice(item.precio)}</p>
+                <div className="cart-item-meta">
+                  <span className="cart-item-price">{formatPrice(item.precio)}</span>
+                  <span className="cart-item-separator">•</span>
+                  <span className="cart-item-stock">{item.stock} disponibles</span>
+                </div>
               </div>
               <div className="cart-item-quantity">
+                <label className="quantity-label">Cantidad:</label>
                 <Input
                   type="number"
                   min="1"
@@ -148,31 +174,54 @@ export const CartPage = () => {
                 />
               </div>
               <div className="cart-item-total">
-                {formatPrice((item.precio || 0) * (item.quantity ?? item.cantidad ?? 1))}
+                <span className="total-label">Subtotal</span>
+                <span className="total-value">{formatPrice((item.precio || 0) * (item.quantity ?? item.cantidad ?? 1))}</span>
               </div>
-              <Button
-                variant="ghost"
-                size="small"
+              <button
+                className="cart-item-remove"
                 onClick={() => handleRemove(item.id)}
                 aria-label={`Eliminar ${item.nombre}`}
               >
-                ✕
-              </Button>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <line x1="10" y1="11" x2="10" y2="17"/>
+                  <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+              </button>
             </div>
           ))}
         </div>
 
         <div className="cart-summary">
-          <h2 className="cart-summary-title">Resumen del Pedido</h2>
+          <h2 className="cart-summary-title">
+            <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            Resumen del Pedido
+          </h2>
           
           <div className="cart-summary-row">
-            <span>Productos ({itemCount}):</span>
-            <span>{formatPrice(subtotal)}</span>
+            <div className="summary-label">
+              <svg className="row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span>Productos ({itemCount})</span>
+            </div>
+            <span className="summary-value">{formatPrice(subtotal)}</span>
           </div>
           
           <div className="cart-summary-row">
-            <span>Envío:</span>
-            <span>{shipping === 0 ? 'Gratis' : formatPrice(shipping)}</span>
+            <div className="summary-label">
+              <svg className="row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>Envío</span>
+            </div>
+            <span className="summary-value shipping-value">{shipping === 0 ? 'Gratis ✨' : formatPrice(shipping)}</span>
           </div>
           
           <div className="cart-summary-divider"></div>
@@ -189,7 +238,10 @@ export const CartPage = () => {
             disabled={isProcessing}
             className="cart-checkout-button"
           >
-            Comprar
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+            {isProcessing ? 'Procesando...' : 'Comprar'}
           </Button>
         </div>
       </div>

@@ -146,11 +146,12 @@ export const HomePage = () => {
     <div className="home-page">
       <Hero />
 
-      {carouselImages.length > 0 && (
-        <section className="carousel-section" aria-label="Carrusel de promociones">
-          <SwiperCarousel images={carouselImages} />
-        </section>
-      )}
+      {/* Carrusel de im\u00e1genes destacado */}
+      <section className="carousel-section" aria-label="Carrusel de promociones">
+        <div className="container">
+          <SwiperCarousel images={carouselImages} showOverlay={true} />
+        </div>
+      </section>
 
       <FeaturedSection />
 

@@ -38,7 +38,7 @@
 
 .verification-button {
   margin-top: 8px;
-  background: #10b981;
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 10px 14px;
@@ -55,7 +55,7 @@
 }
 
 .verification-link {
-  color: #2563eb;
+  color: var(--color-primary);
   text-decoration: none;
 }
 

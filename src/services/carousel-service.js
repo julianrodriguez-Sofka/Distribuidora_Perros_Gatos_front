@@ -4,6 +4,7 @@ export const carouselService = {
   // Obtener imágenes del carrusel (público - sin autenticación)
   async getCarouselPublic() {
     const response = await apiClient.get('/carrusel/images');
+    console.log('Carousel data from API:', response.data); // Debug log
     return response.data;
   },
 
