@@ -8,10 +8,36 @@ Este frontend se comunica con el backend mediante API REST y muestra el catálog
 
 ---
 
+## ⚠️ IMPORTANTE: Configuración Inicial Requerida
+
+**ANTES de ejecutar el proyecto**, debes configurar las variables de entorno:
+
+### 🔧 Configuración Automática (Recomendada)
+```powershell
+# Ejecuta este script interactivo
+powershell -ExecutionPolicy Bypass -File setup-env.ps1
+```
+
+### 📝 Configuración Manual
+```bash
+# 1. Copia el archivo de ejemplo
+cp .env.example .env
+
+# 2. Verifica que contenga:
+REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_ENV=development
+```
+
+**Si no configuras el `.env`, obtendrás el error "Cannot connect to API"**
+
+📖 **Guía detallada**: Ver [INSTALACION_RAPIDA.md](INSTALACION_RAPIDA.md)
+
+---
+
 ## 🧰 Requisitos previos
 
 - Node.js 16+ y npm
-- Backend API corriendo (configurar URL en `.env`)
+- Backend API corriendo en http://localhost:8000 (configurar en `.env`)
 
 ---
 
@@ -24,6 +50,10 @@ Este frontend se comunica con el backend mediante API REST y muestra el catálog
 
 2. Configura las variables de entorno:
    ```bash
+   # Opción A - Automática
+   powershell -ExecutionPolicy Bypass -File setup-env.ps1
+   
+   # Opción B - Manual
    cp .env.example .env
    # Edita .env y configura REACT_APP_API_URL
    ```
@@ -32,6 +62,8 @@ Este frontend se comunica con el backend mediante API REST y muestra el catálog
    ```bash
    npm start
    ```
+   
+   El script `prestart` verificará automáticamente tu configuración.
 
 4. Abre [http://localhost:3000](http://localhost:3000) en tu navegador
 
