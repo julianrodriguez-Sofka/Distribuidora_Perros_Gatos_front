@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="dogFaceGradient" cx="50%" cy="40%">
+      <stop offset="0%" style="stop-color:#FFD54F;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#FFB74D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF9800;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="earGradient" cx="30%" cy="30%">
+      <stop offset="0%" style="stop-color:#FFB74D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E65100;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="muzzleGradient" cx="50%" cy="30%">
+      <stop offset="0%" style="stop-color:#FFE082;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFCA28;stop-opacity:1" />
+    </radialGradient>
+    <filter id="softShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.15"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Sombra suave detrás de la cabeza -->
+  <ellipse cx="100" cy="105" rx="75" ry="70" fill="#000" opacity="0.1"/>
+  
+  <!-- Cabeza principal -->
+  <ellipse cx="100" cy="100" rx="72" ry="68" fill="url(#dogFaceGradient)"/>
+  
+  <!-- Oreja izquierda (caída) -->
+  <ellipse cx="48" cy="85" rx="28" ry="55" fill="url(#earGradient)" transform="rotate(-30 48 85)"/>
+  <ellipse cx="52" cy="88" rx="18" ry="45" fill="#D84315" opacity="0.3" transform="rotate(-28 52 88)"/>
+  
+  <!-- Oreja derecha (caída) -->
+  <ellipse cx="152" cy="85" rx="28" ry="55" fill="url(#earGradient)" transform="rotate(30 152 85)"/>
+  <ellipse cx="148" cy="88" rx="18" ry="45" fill="#D84315" opacity="0.3" transform="rotate(28 148 88)"/>
+  
+  <!-- Parte superior de la cabeza más redondeada -->
+  <ellipse cx="100" cy="75" rx="65" ry="45" fill="url(#dogFaceGradient)"/>
+  
+  <!-- Hocico/Muzzle grande y prominente -->
+  <ellipse cx="100" cy="125" rx="42" ry="38" fill="url(#muzzleGradient)" filter="url(#softShadow)"/>
+  
+  <!-- Detalles del hocico -->
+  <ellipse cx="85" cy="120" rx="15" ry="12" fill="#FFB74D" opacity="0.6"/>
+  <ellipse cx="115" cy="120" rx="15" ry="12" fill="#FFB74D" opacity="0.6"/>
+  
+  <!-- Ojo izquierdo - fondo blanco -->
+  <ellipse cx="75" cy="90" rx="20" ry="24" fill="white" filter="url(#softShadow)"/>
+  <!-- Borde del ojo -->
+  <ellipse cx="75" cy="90" rx="20" ry="24" fill="none" stroke="#8D6E63" stroke-width="1.5"/>
+  <!-- Iris café grande -->
+  <ellipse cx="76" cy="93" rx="13" ry="15" fill="#5D4037"/>
+  <!-- Pupila -->
+  <ellipse cx="77" cy="93" rx="8" ry="10" fill="#000"/>
+  <!-- Brillo principal -->
+  <ellipse cx="79" cy="88" rx="5" ry="6" fill="white" opacity="0.9"/>
+  <!-- Brillo secundario -->
+  <circle cx="73" cy="97" r="2" fill="white" opacity="0.6"/>
+  
+  <!-- Ojo derecho - fondo blanco -->
+  <ellipse cx="125" cy="90" rx="20" ry="24" fill="white" filter="url(#softShadow)"/>
+  <!-- Borde del ojo -->
+  <ellipse cx="125" cy="90" rx="20" ry="24" fill="none" stroke="#8D6E63" stroke-width="1.5"/>
+  <!-- Iris café grande -->
+  <ellipse cx="124" cy="93" rx="13" ry="15" fill="#5D4037"/>
+  <!-- Pupila -->
+  <ellipse cx="123" cy="93" rx="8" ry="10" fill="#000"/>
+  <!-- Brillo principal -->
+  <ellipse cx="121" cy="88" rx="5" ry="6" fill="white" opacity="0.9"/>
+  <!-- Brillo secundario -->
+  <circle cx="127" cy="97" r="2" fill="white" opacity="0.6"/>
+  
+  <!-- Cejas expresivas y adorables -->
+  <path d="M 55 75 Q 65 70 78 73" stroke="#BF360C" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+  <path d="M 122 73 Q 135 70 145 75" stroke="#BF360C" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+  
+  <!-- Nariz grande y prominente -->
+  <ellipse cx="100" cy="118" rx="16" ry="14" fill="#4E342E"/>
+  <!-- Brillo en la nariz -->
+  <ellipse cx="96" cy="114" rx="5" ry="4" fill="white" opacity="0.4"/>
+  <circle cx="98" cy="112" r="2" fill="white" opacity="0.7"/>
+  
+  <!-- Línea desde la nariz hacia abajo -->
+  <path d="M 100 132 L 100 142" stroke="#8D6E63" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Boca sonriente grande -->
+  <path d="M 78 142 Q 100 154 122 142" stroke="#6D4C41" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- Lado izquierdo de la boca -->
+  <path d="M 78 142 Q 75 138 73 135" stroke="#6D4C41" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Lado derecho de la boca -->
+  <path d="M 122 142 Q 125 138 127 135" stroke="#6D4C41" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Lengua rosada -->
+  <ellipse cx="100" cy="152" rx="14" ry="10" fill="#FF6B9D"/>
+  <ellipse cx="100" cy="152" rx="14" ry="10" fill="none" stroke="#E91E63" stroke-width="1" opacity="0.5"/>
+  <!-- Detalle central de la lengua -->
+  <path d="M 100 147 L 100 157" stroke="#F48FB1" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Manchas/detalles en la cara -->
+  <ellipse cx="65" cy="105" rx="8" ry="6" fill="#FF8A65" opacity="0.3"/>
+  <ellipse cx="135" cy="105" rx="8" ry="6" fill="#FF8A65" opacity="0.3"/>
+</svg>

@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;600;700&display=swap');
 
 :root{
-  --color-primary: #2F6BE1;
-  --color-secondary: #FF7A59;
-  --color-accent: #34C759;
-  /* Fondo más moderno y suave (azul claro) en lugar de blanco puro */
-  --bg: #F4F7FF;
+  --color-primary: #7C3AED;
+  --color-secondary: #A78BFA;
+  --color-accent: #10B981;
+  /* Fondo más moderno y suave (violeta muy claro) */
+  --bg: #F5F3FF;
   --card-bg: #FFFFFF;
-  --text: #111827;
+  --text: #1F2937;
   --muted: #6B7280;
   --radius-lg: 12px;
   --radius-md: 8px;

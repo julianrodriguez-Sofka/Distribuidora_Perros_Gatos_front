@@ -7,6 +7,7 @@ import { Button, Input, Textarea, Select } from '../../components/ui/index';
 import { formatPrice } from '../../utils/validation';
 import { toast } from '../../utils/toast';
 import { pedidosService } from '../../services/pedidos-service';
+import { CheckoutForm } from './components/CheckoutForm';
 import './style.css';
 
 export const CartPage = () => {
@@ -17,10 +18,12 @@ export const CartPage = () => {
   const legacy = useCart();
   const ctx = useContext(CartContext);
 
-  let cart, itemCount, total, subtotal, shipping, updateQuantity, removeFromCart, clearCart;
+  let cart, itemCount, total, updateQuantity, removeFromCart, clearCart;
   if (ctx) {
     cart = ctx.items;
     itemCount = ctx.itemCount;
+    subtotal = ctx.subtotal;
+    shipping = ctx.shipping;
     total = ctx.total;
     subtotal = ctx.subtotal;
     shipping = ctx.shipping;
@@ -30,6 +33,8 @@ export const CartPage = () => {
   } else {
     cart = legacy.cart;
     itemCount = legacy.itemCount;
+    subtotal = legacy.subtotal || 0;
+    shipping = legacy.shipping || 0;
     total = legacy.total;
     // Calculate subtotal and shipping for legacy cart
     subtotal = cart.reduce((sum, item) => sum + (item.precio || 0) * (item.quantity || item.cantidad || 1), 0);
@@ -39,35 +44,6 @@ export const CartPage = () => {
     clearCart = legacy.clearCart;
   }
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [shippingAddress, setShippingAddress] = useState('');
-  const [shippingPhone, setShippingPhone] = useState('');
-  const [specialNote, setSpecialNote] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-
-  const paymentMethods = [
-    { value: 'efectivo', label: 'Efectivo' },
-    { value: 'tarjeta_credito', label: 'Tarjeta de Crédito' },
-    { value: 'tarjeta_debito', label: 'Tarjeta de Débito' },
-    { value: 'transferencia', label: 'Transferencia Bancaria' },
-    { value: 'nequi', label: 'Nequi' },
-    { value: 'daviplata', label: 'Daviplata' },
-  ];
-
-  // Initialize form with user data if available
-  useEffect(() => {
-    if (user) {
-      const userAddress = user.direccion_envio || user.direccionEnvio || '';
-      const userPhone = user.telefono || '';
-      setShippingAddress(userAddress);
-      setShippingPhone(userPhone);
-      
-      // Show form automatically if address is invalid
-      if (!userAddress || userAddress.trim().length < 10) {
-        setShowAddressForm(true);
-      }
-    }
-  }, [user]);
 
   const handleQuantityChange = (productId, newQuantity) => {
     const quantity = parseInt(newQuantity, 10);
@@ -76,7 +52,6 @@ export const CartPage = () => {
       updateQuantity(productId, quantity);
     }
   };
-
   const handleRemove = (productId) => {
     removeFromCart(productId);
   };
@@ -93,7 +68,7 @@ export const CartPage = () => {
     return true;
   };
 
-  const handleCheckout = async () => {
+  const handleCheckoutClick = () => {
     if (!isAuthenticated) {
       toast.error('Debes iniciar sesión o registrarte para continuar con la compra.');
       setTimeout(() => navigate('/login'), 2000);
@@ -124,27 +99,31 @@ export const CartPage = () => {
       return;
     }
 
+    setShowCheckoutForm(true);
+  };
+
+  const handleCheckoutSubmit = async (formData) => {
     setIsProcessing(true);
     try {
       const orderData = {
-        productos: cart.map(item => ({
-          sku: item.id,
-          nombre: item.nombre,
+        usuario_id: user.id,
+        direccion_entrega: formData.direccion_entrega,
+        telefono_contacto: formData.telefono_contacto,
+        metodo_pago: formData.metodo_pago,
+        nota_especial: formData.nota_especial || '',
+        items: cart.map(item => ({
+          producto_id: item.id,
           cantidad: item.quantity ?? item.cantidad ?? 1,
-          precioUnitario: item.precio,
+          precio_unitario: item.precio,
         })),
-        direccionEnvio: shippingAddress.trim(),
-        telefonoContacto: shippingPhone.trim(),
-        notaEspecial: specialNote.trim() || undefined,
-        subtotal: subtotal,
-        costoEnvio: shipping,
-        metodoPago: paymentMethod,
+        direccionEnvio: user.direccionEnvio,
       };
 
       await pedidosService.createOrder(orderData);
       clearCart();
-      toast.success('Pedido creado exitosamente');
-      navigate('/pedidos');
+      setShowCheckoutForm(false);
+      toast.success('¡Pedido creado exitosamente! Pronto recibirás la confirmación.');
+      navigate('/');
     } catch (error) {
       console.error('Error creating order:', error);
       const errorMessage = error.response?.data?.detail?.message || 
@@ -157,13 +136,28 @@ export const CartPage = () => {
     }
   };
 
+  const handleCheckoutCancel = () => {
+    setShowCheckoutForm(false);
+  };
+
   if (cart.length === 0) {
     return (
       <div className="cart-page">
         <div className="cart-empty">
+          <div className="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </div>
           <h2>Tu carrito está vacío</h2>
-          <p>Agrega productos desde el catálogo</p>
+          <p>Agrega productos desde el catálogo para empezar tu compra</p>
           <Button variant="primary" onClick={() => navigate('/')}>
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
             Ver Catálogo
           </Button>
         </div>
@@ -173,7 +167,17 @@ export const CartPage = () => {
 
   return (
     <div className="cart-page">
-      <h1 className="cart-title">Carrito de Compras</h1>
+      <div className="cart-header">
+        <div className="cart-title-wrapper">
+          <svg className="cart-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <h1 className="cart-title">Carrito de Compras</h1>
+        </div>
+        <div className="cart-count-badge">{itemCount} {itemCount === 1 ? 'producto' : 'productos'}</div>
+      </div>
       
       <div className="cart-content">
         <div className="cart-items">
@@ -192,9 +196,14 @@ export const CartPage = () => {
               />
               <div className="cart-item-details">
                 <h3 className="cart-item-name">{item.nombre}</h3>
-                <p className="cart-item-price">{formatPrice(item.precio)}</p>
+                <div className="cart-item-meta">
+                  <span className="cart-item-price">{formatPrice(item.precio)}</span>
+                  <span className="cart-item-separator">•</span>
+                  <span className="cart-item-stock">{item.stock} disponibles</span>
+                </div>
               </div>
               <div className="cart-item-quantity">
+                <label className="quantity-label">Cantidad:</label>
                 <Input
                   type="number"
                   min="1"
@@ -205,143 +214,56 @@ export const CartPage = () => {
                 />
               </div>
               <div className="cart-item-total">
-                {formatPrice((item.precio || 0) * (item.quantity ?? item.cantidad ?? 1))}
+                <span className="total-label">Subtotal</span>
+                <span className="total-value">{formatPrice((item.precio || 0) * (item.quantity ?? item.cantidad ?? 1))}</span>
               </div>
-              <Button
-                variant="ghost"
-                size="small"
+              <button
+                className="cart-item-remove"
                 onClick={() => handleRemove(item.id)}
                 aria-label={`Eliminar ${item.nombre}`}
               >
-                ✕
-              </Button>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <line x1="10" y1="11" x2="10" y2="17"/>
+                  <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+              </button>
             </div>
           ))}
         </div>
 
         <div className="cart-summary">
           <h2 className="cart-summary-title">Resumen</h2>
-          
-          {/* Product breakdown */}
-          <div className="cart-products-breakdown">
-            <h3 className="breakdown-title">Productos</h3>
-            {cart.map((item) => {
-              const quantity = item.quantity ?? item.cantidad ?? 1;
-              const itemTotal = (item.precio || 0) * quantity;
-              return (
-                <div key={item.id} className="breakdown-item">
-                  <div className="breakdown-item-info">
-                    <span className="breakdown-item-name">{item.nombre}</span>
-                    <span className="breakdown-item-details">
-                      {quantity} x {formatPrice(item.precio)}
-                    </span>
-                  </div>
-                  <span className="breakdown-item-total">{formatPrice(itemTotal)}</span>
-                </div>
-              );
-            })}
+          <div className="cart-summary-row">
+            <span>Productos:</span>
+            <span>{itemCount}</span>
           </div>
-
-          {/* Cost breakdown */}
-          <div className="cart-cost-breakdown">
-            <div className="cart-summary-row">
-              <span>Subtotal:</span>
-              <span>{formatPrice(subtotal)}</span>
-            </div>
-            <div className="cart-summary-row">
-              <span>Costo de Envío:</span>
-              <span>{formatPrice(shipping)}</span>
-            </div>
-            <div className="cart-summary-row cart-summary-total">
-              <span>Total:</span>
-              <span>{formatPrice(total)}</span>
-            </div>
+          <div className="cart-summary-row cart-summary-total">
+            <span>Total:</span>
+            <span>{formatPrice(total)}</span>
           </div>
-
-          {/* Shipping Address Form */}
-          <div className={`shipping-form-container ${showAddressForm ? 'shipping-form-visible' : ''}`}>
-            <h3 className="shipping-form-title">Información de Envío</h3>
-            <div className="shipping-form-fields">
-              <div className="form-field">
-                <label htmlFor="shipping-address">Dirección de Envío *</label>
-                <Textarea
-                  id="shipping-address"
-                  value={shippingAddress}
-                  onChange={(e) => setShippingAddress(e.target.value)}
-                  placeholder="Ingresa tu dirección completa (mínimo 10 caracteres)"
-                  rows={3}
-                  className="shipping-input"
-                />
-                {shippingAddress && shippingAddress.trim().length < 10 && (
-                  <span className="form-error">La dirección debe tener al menos 10 caracteres</span>
-                )}
-              </div>
-              <div className="form-field">
-                <label htmlFor="shipping-phone">Teléfono de Contacto *</label>
-                <Input
-                  id="shipping-phone"
-                  type="tel"
-                  value={shippingPhone}
-                  onChange={(e) => setShippingPhone(e.target.value)}
-                  placeholder="Ej: 3001234567"
-                  className="shipping-input"
-                />
-                {shippingPhone && shippingPhone.trim().length < 7 && (
-                  <span className="form-error">El teléfono debe tener al menos 7 dígitos</span>
-                )}
-              </div>
-              <div className="form-field">
-                <label htmlFor="special-note">Nota Especial (Opcional)</label>
-                <Textarea
-                  id="special-note"
-                  value={specialNote}
-                  onChange={(e) => setSpecialNote(e.target.value)}
-                  placeholder="Instrucciones especiales para la entrega"
-                  rows={2}
-                  className="shipping-input"
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="payment-method">Método de Pago *</label>
-                <Select
-                  id="payment-method"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  options={paymentMethods}
-                  placeholder="Selecciona un método de pago"
-                  className="shipping-input"
-                  required
-                />
-                {!paymentMethod && (
-                  <span className="form-error">Debes seleccionar un método de pago</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {!showAddressForm && (
-            <Button
-              variant="secondary"
-              size="medium"
-              onClick={() => setShowAddressForm(true)}
-              className="cart-edit-address-button"
-            >
-              {shippingAddress ? 'Editar Dirección' : 'Agregar Dirección de Envío'}
-            </Button>
-          )}
-
           <Button
             variant="primary"
             size="large"
-            onClick={handleCheckout}
+            onClick={handleCheckoutClick}
             disabled={isProcessing}
             className="cart-checkout-button"
           >
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
             {isProcessing ? 'Procesando...' : 'Comprar'}
           </Button>
         </div>
       </div>
+
+      {showCheckoutForm && (
+        <CheckoutForm
+          onSubmit={handleCheckoutSubmit}
+          onCancel={handleCheckoutCancel}
+          isProcessing={isProcessing}
+        />
+      )}
     </div>
   );
 };
-

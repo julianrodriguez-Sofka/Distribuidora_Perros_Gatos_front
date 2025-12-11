@@ -10,6 +10,7 @@ import VerificationCodePage from './pages/verification-code';
 import { LoginPage } from './pages/login';
 import { RegisterPage } from './pages/register';
 import { CartPage } from './pages/cart';
+import MyOrders from './pages/my-orders/MyOrders';
 import { AdminPedidosPage } from './pages/Admin/pedidos';
 import { AdminUsuariosPage } from './pages/Admin/usuarios';
 import { AdminUsuarioDetailPage } from './pages/Admin/usuarios/detail';
@@ -19,10 +20,13 @@ import EditarProductoPage from './pages/Admin/productos/editar';
 import { AdminCategoriasPage } from './pages/Admin/categorias';
 import AdminCarruselPage from './pages/Admin/carrusel';
 import { AdminInventarioPage } from './pages/Admin/inventario';
+import { AdminCalificacionesPage } from './pages/Admin/calificaciones';
 import { NotFoundPage } from './pages/not-found';
+import VerifyEmailPage from './pages/verify-email';
 import { authService } from './services/auth-service';
 import { loginSuccess } from './redux/actions/auth-actions';
 import { cartUtils } from './utils/cart';
+import Chatbot from './components/chatbot/Chatbot';
 import './App.css';
 
 function App() {
@@ -37,51 +41,34 @@ function App() {
     if (hasCheckedAuth.current) return;
     
     const checkAuth = async () => {
-      hasCheckedAuth.current = true;
       try {
         const user = await authService.getCurrentUser();
         if (user) {
+          // Save user to localStorage for persistence
+          localStorage.setItem('user', JSON.stringify(user));
           dispatch(loginSuccess(user));
-          // Only redirect to admin products if:
-          // 1. User is admin
-          // 2. User is on the home page, login, or register pages
-          // 3. User is NOT already on an admin page
+          // If the user is admin, redirect to admin products on session start
           try {
+            // Accept different shapes for role (rol, role, roles...)
             const { isAdminUser } = await import('./utils/auth');
             if (isAdminUser(user)) {
-              const currentPath = window.location.pathname;
-              const isAdminPage = currentPath.startsWith('/admin/');
-              // Only redirect if user is on home page or login/register pages, and NOT already on admin page
-              if (!isAdminPage && (currentPath === '/' || currentPath === '/login' || currentPath === '/registro')) {
-                navigate('/admin/productos', { replace: true });
-              }
-              // If user is already on an admin page, don't redirect - let them navigate freely
+              navigate('/admin/productos', { replace: true });
             }
           } catch (err) {
             // fallback to previous checks
             if (user.rol === 'admin' || user.role === 'admin') {
-              const currentPath = window.location.pathname;
-              const isAdminPage = currentPath.startsWith('/admin/');
-              if (!isAdminPage && (currentPath === '/' || currentPath === '/login' || currentPath === '/registro')) {
-                navigate('/admin/productos', { replace: true });
-              }
+              navigate('/admin/productos', { replace: true });
             }
           }
         }
       } catch (error) {
-        // User not authenticated - this is normal and expected
-        // Only log in development, don't show errors to user
-        if (process.env.NODE_ENV === 'development') {
-          console.log('User not authenticated (this is normal on first load)');
-        }
-        // Silently handle 401 - it means user is not logged in, which is fine
-        // The error is already marked as silent by the interceptor
+        // User not authenticated
+        console.log('User not authenticated');
       }
     };
 
     checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
+  }, [dispatch]);
 
   useEffect(() => {
     // Load cart from localStorage on mount
@@ -92,7 +79,8 @@ function App() {
   }, [dispatch]);
 
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route
         path="/admin/productos"
         element={
@@ -165,11 +153,25 @@ function App() {
         }
       />
       <Route
+        path="/verify-email"
+        element={<VerifyEmailPage />}
+      />
+      <Route
         path="/carrito"
         element={
           <MainLayout>
             <CartPage />
           </MainLayout>
+        }
+      />
+      <Route
+        path="/mis-pedidos"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <MyOrders />
+            </MainLayout>
+          </ProtectedRoute>
         }
       />
 
@@ -235,7 +237,7 @@ function App() {
         }
       />
       <Route
-        path="/admin/inventario"
+        path="/admin/estadisticas"
         element={
           <ProtectedRoute requireAdmin>
             <AdminLayout>
@@ -243,6 +245,21 @@ function App() {
             </AdminLayout>
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/admin/calificaciones"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminCalificacionesPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      {/* Redirect old inventario route to estadisticas */}
+      <Route
+        path="/admin/inventario"
+        element={<Navigate to="/admin/estadisticas" replace />}
       />
 
       {/* 404 */}
@@ -255,6 +272,10 @@ function App() {
         }
       />
     </Routes>
+    
+    {/* Chatbot disponible en todas las páginas */}
+    <Chatbot />
+  </>
   );
 }
 

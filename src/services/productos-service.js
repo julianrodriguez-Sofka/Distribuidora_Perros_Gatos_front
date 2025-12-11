@@ -1,7 +1,46 @@
 import apiClient from './api-client';
+import { calificacionesService } from './calificaciones-service';
 
 export const productosService = {
-  // Get catalog (grouped by category and subcategory)
+  // Get catalog (public - sin autenticación) - para la página de inicio
+  async getCatalogPublic({ skip = 0, limit = 20, categoria_id = null, subcategoria_id = null } = {}) {
+    const params = { skip, limit };
+    if (categoria_id) params.categoria_id = categoria_id;
+    if (subcategoria_id) params.subcategoria_id = subcategoria_id;
+    const response = await apiClient.get('/home/productos', { params });
+    const productos = response.data;
+    
+    // Enriquecer productos con calificaciones
+    if (Array.isArray(productos) && productos.length > 0) {
+      try {
+        const productIds = productos.map(p => p.id);
+        const statsMap = await calificacionesService.getProductsStats(productIds);
+        
+        // Agregar stats a cada producto
+        productos.forEach(producto => {
+          const stats = statsMap[producto.id];
+          if (stats && stats.promedio_calificacion !== undefined) {
+            producto.promedio_calificacion = stats.promedio_calificacion || 0;
+            producto.total_calificaciones = stats.total_calificaciones || 0;
+          } else {
+            producto.promedio_calificacion = 0;
+            producto.total_calificaciones = 0;
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching product ratings:', error);
+        // Continuar sin calificaciones si falla - agregar valores por defecto
+        productos.forEach(producto => {
+          producto.promedio_calificacion = 0;
+          producto.total_calificaciones = 0;
+        });
+      }
+    }
+    
+    return productos;
+  },
+
+  // Get catalog (admin - requiere autenticación)
   async getCatalog({ skip = 0, limit = 20, q = '' } = {}) {
     const params = { skip, limit };
     if (q) params.q = q;
@@ -17,7 +56,12 @@ export const productosService = {
 
   // Admin: Create product (then optionally upload image to /products/{id}/images)
   async createProduct(productData) {
-    const { imagenFile, ...payload } = productData || {};
+    const { imagenFile, imagenUrl, ...payload } = productData || {};
+    
+    // Si hay imagenUrl, agregarla al payload
+    if (imagenUrl) {
+      payload.imagenUrl = imagenUrl;
+    }
 
     const response = await apiClient.post('/admin/productos', payload);
     let created = response.data;
@@ -73,11 +117,18 @@ export const productosService = {
 
   // Admin: Update product
   async updateProduct(id, productData) {
-    const { imagenFile, ...payload } = productData || {};
+    const { imagenFile, imagenUrl, ...payload } = productData || {};
+    
+    // Si hay imagenUrl (incluso si está vacía), agregarla al payload
+    // Esto permite eliminar imágenes enviando imagenUrl: ''
+    if (imagenUrl !== undefined) {
+      payload.imagenUrl = imagenUrl;
+    }
 
     const response = await apiClient.put(`/admin/productos/${id}`, payload);
     const updated = response.data;
 
+    // Si hay archivo, subirlo DESPUÉS de actualizar (tiene prioridad sobre imagenUrl)
     if (imagenFile) {
       try {
         const form = new FormData();
@@ -92,6 +143,7 @@ export const productosService = {
         }
       } catch (err) {
         console.error('Image upload failed for updated product:', err);
+        throw err; // Propagar el error para que el usuario sepa que falló
       }
     }
 

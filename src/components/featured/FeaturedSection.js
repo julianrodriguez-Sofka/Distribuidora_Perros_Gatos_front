@@ -17,7 +17,15 @@ const FeaturedSection = ({ limit = 6 }) => {
 
   return (
     <section id="destacados" className="featured-section container">
-      <h2 className="featured-title">Productos Destacados</h2>
+      <div className="featured-header">
+        <div className="featured-header-content">
+          <span className="featured-badge">✨ Especial para tu mascota</span>
+          <h2 className="featured-title">Productos Destacados</h2>
+          <p className="featured-subtitle">
+            Los mejores productos seleccionados especialmente para el cuidado y felicidad de tus mascotas
+          </p>
+        </div>
+      </div>
       <div className="featured-grid">
         {featured.map((p) => (
           <ProductCard key={p.id || p._id || p.nombre} product={p} />

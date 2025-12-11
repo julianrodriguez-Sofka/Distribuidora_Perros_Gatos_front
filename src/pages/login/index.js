@@ -56,11 +56,9 @@ export const LoginPage = () => {
       const result = await login(formData.email, formData.password);
       if (result.success) {
         // Redirección ya manejada en useAuth
-      } else if (result.error?.includes("Cuenta no verificada")) {
-        setShowVerifyModal(true);
-        setTimeout(() => {
-          navigate('/verification-code', { state: { email: formData.email } });
-        }, 1200);
+      } else if (result.error?.includes("Cuenta no verificada") || result.error?.includes("no verificada")) {
+        // Redirigir a página de verificación
+        navigate('/verify-email', { state: { email: formData.email } });
       }
     } finally {
       setIsLoading(false);

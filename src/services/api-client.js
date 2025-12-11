@@ -172,7 +172,8 @@ apiClient.interceptors.response.use(
       // Si hay un token en localStorage, probablemente el token expiró o es inválido:
       // en ese caso redirigimos a login. Si no hay token (petición pública),
       // no forzamos la redirección para permitir páginas públicas (ej. verification-code).
-      if (hasToken) {
+      const token = localStorage.getItem('access_token');
+      if (token) {
         // Dispatch redux logout so the app can react (clear state, navigate, etc.)
         try {
           store.dispatch(logoutAction());

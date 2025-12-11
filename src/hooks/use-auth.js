@@ -20,6 +20,8 @@ export const useAuth = () => {
       // This ensures we have a valid session/token and obtain the canonical user object.
       try {
         const me = await authService.getCurrentUser();
+        // Save user to localStorage for session persistence
+        localStorage.setItem('user', JSON.stringify(me));
         dispatch(loginAction(me));
 
         // Redirect based on where user came from
@@ -35,6 +37,8 @@ export const useAuth = () => {
         if (!err?._toastsShown) toast.error(message);
         // dispatch logout just in case
         dispatch(logoutAction());
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
         return { success: false, error: message };
       }
     } catch (error) {
@@ -50,6 +54,9 @@ export const useAuth = () => {
       } catch (error) {
         console.error('Error logging out:', error);
       } finally {
+        // Clear all auth-related data from localStorage
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
         dispatch(logoutAction());
         navigate('/login');
       }

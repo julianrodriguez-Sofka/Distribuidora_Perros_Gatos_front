@@ -6,15 +6,7 @@ import { formatPrice, formatDate } from '../../../utils/validation';
 import { toast } from '../../../utils/toast';
 import './style.css';
 
-// Map backend statuses to frontend display names
-const STATUS_MAP = {
-  'Pendiente': 'Pendiente',
-  'Enviado': 'Enviado',
-  'Entregado': 'Entregado',
-  'Cancelado': 'Cancelado',
-};
-
-const ORDER_STATUSES = ['Pendiente', 'Enviado', 'Entregado', 'Cancelado'];
+const ORDER_STATUSES = ['Pendiente de envío', 'Enviado', 'Entregado', 'Cancelado'];
 const FILTER_OPTIONS = ['Todos', ...ORDER_STATUSES];
 
 const getValidTransitions = (currentStatus) => {
@@ -60,7 +52,7 @@ export const AdminPedidosPage = () => {
 
   const handleViewOrder = async (orderId) => {
     try {
-      const order = await pedidosService.getOrderById(orderId);
+      const order = await pedidosService.getAdminOrderById(orderId);
       setSelectedOrder(order);
       setIsModalOpen(true);
     } catch (error) {
@@ -96,7 +88,16 @@ export const AdminPedidosPage = () => {
   return (
     <div className="admin-pedidos-page">
       <div className="page-header">
-        <h1 className="page-title">Gestión de Pedidos</h1>
+        <div className="page-badge">📦 Panel Administrativo</div>
+        <div className="page-title-wrapper">
+          <svg className="page-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+          <h1 className="page-title">Gestión de Pedidos</h1>
+        </div>
+        <p className="page-subtitle">Administra y actualiza el estado de todos los pedidos</p>
       </div>
 
       <div className="filters">
@@ -113,9 +114,21 @@ export const AdminPedidosPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="loading">Cargando pedidos...</div>
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <p>Cargando pedidos...</p>
+        </div>
       ) : filteredOrders.length === 0 ? (
         <div className="empty-state">
+          <div className="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </div>
+          <h3>No hay pedidos</h3>
           <p>No se encontraron pedidos con ese estado.</p>
         </div>
       ) : (
@@ -123,12 +136,81 @@ export const AdminPedidosPage = () => {
           <table className="orders-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="4" y1="9" x2="20" y2="9"/>
+                      <line x1="4" y1="15" x2="20" y2="15"/>
+                      <line x1="10" y1="3" x2="8" y2="21"/>
+                      <line x1="16" y1="3" x2="14" y2="21"/>
+                    </svg>
+                    ID
+                  </div>
+                </th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Cliente
+                  </div>
+                </th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Fecha
+                  </div>
+                </th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="1" x2="12" y2="23"/>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Total
+                  </div>
+                </th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                      <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    Método Pago
+                  </div>
+                </th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    Teléfono
+                  </div>
+                </th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Estado
+                  </div>
+                </th>
+                <th>
+                  <div className="th-content">
+                    <svg className="th-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="1"/>
+                      <circle cx="19" cy="12" r="1"/>
+                      <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                    Acciones
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -143,9 +225,9 @@ export const AdminPedidosPage = () => {
                 return (
                   <tr key={order.id}>
                     <td>{order.id}</td>
-                    <td>{clientName}</td>
-                    <td>{formatDate(orderDate)}</td>
-                    <td>{formatPrice(order.total || 0)}</td>
+                    <td>{order.clienteNombre}</td>
+                    <td>{formatDate(order.fecha)}</td>
+                    <td>{formatPrice(order.total)}</td>
                     <td>
                       <OrderStatusBadge status={order.estado} />
                     </td>
@@ -167,16 +249,13 @@ export const AdminPedidosPage = () => {
                                 e.target.value = '';
                               }
                             }}
+                            options={[
+                              { value: '', label: 'Cambiar estado' },
+                              ...validTransitions.map(status => ({ value: status, label: status }))
+                            ]}
                             className="status-select"
                             disabled={isUpdating}
-                          >
-                            <option value="">Cambiar estado</option>
-                            {validTransitions.map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </Select>
+                          />
                         )}
                       </div>
                     </td>
@@ -198,14 +277,13 @@ export const AdminPedidosPage = () => {
           <div className="order-details">
             <div className="order-detail-section">
               <h3>Cliente</h3>
-              <p><strong>Nombre:</strong> {selectedOrder.clienteNombre || selectedOrder.cliente_nombre || 'N/A'}</p>
-              <p><strong>ID:</strong> {selectedOrder.clienteId || selectedOrder.usuario_id || 'N/A'}</p>
+              <p><strong>Nombre:</strong> {selectedOrder.clienteNombre}</p>
+              <p><strong>ID:</strong> {selectedOrder.clienteId}</p>
             </div>
             
             <div className="order-detail-section">
               <h3>Envío</h3>
-              <p><strong>Dirección:</strong> {selectedOrder.direccion_entrega || selectedOrder.direccionEnvio || 'N/A'}</p>
-              <p><strong>Teléfono:</strong> {selectedOrder.telefono_contacto || 'N/A'}</p>
+              <p>{selectedOrder.direccionEnvio}</p>
             </div>
 
             <div className="order-detail-section">
@@ -220,25 +298,12 @@ export const AdminPedidosPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedOrder.items?.map((item, index) => {
-                    // Try to get product name from different possible sources
-                    const productName = item.nombre || 
-                                      selectedOrder.productos?.[index]?.nombre || 
-                                      `Producto ID: ${item.producto_id}`;
-                    return (
-                      <tr key={item.id || index}>
-                        <td>{productName}</td>
-                        <td>{item.cantidad}</td>
-                        <td>{formatPrice(item.precio_unitario)}</td>
-                        <td>{formatPrice(item.precio_unitario * item.cantidad)}</td>
-                      </tr>
-                    );
-                  }) || selectedOrder.productos?.map((product, index) => (
+                  {selectedOrder.productos?.map((product, index) => (
                     <tr key={index}>
-                      <td>{product.nombre}</td>
-                      <td>{product.cantidad}</td>
-                      <td>{formatPrice(product.precioUnitario)}</td>
-                      <td>{formatPrice(product.precioUnitario * product.cantidad)}</td>
+                      <td>Producto #{item.producto_id}</td>
+                      <td>{item.cantidad}</td>
+                      <td>{formatPrice(item.precio_unitario)}</td>
+                      <td>{formatPrice(item.precio_unitario * item.cantidad)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -246,40 +311,9 @@ export const AdminPedidosPage = () => {
             </div>
 
             <div className="order-detail-section">
-              <h3>Resumen de Costos</h3>
-              <div className="cost-breakdown">
-                <div className="cost-row">
-                  <span>Subtotal:</span>
-                  <span>{formatPrice(selectedOrder.subtotal || selectedOrder.total || 0)}</span>
-                </div>
-                <div className="cost-row">
-                  <span>Costo de Envío:</span>
-                  <span>{formatPrice(selectedOrder.costo_envio || 0)}</span>
-                </div>
-                <div className="cost-row cost-total">
-                  <span>Total:</span>
-                  <span>{formatPrice(selectedOrder.total || 0)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="order-detail-section">
-              <h3>Información de Pago</h3>
-              <p><strong>Método de Pago:</strong> {
-                selectedOrder.metodo_pago ? 
-                  selectedOrder.metodo_pago.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 
-                  'No especificado'
-              }</p>
-              <p><strong>Teléfono de Contacto:</strong> {selectedOrder.telefono_contacto || 'N/A'}</p>
-              {selectedOrder.nota_especial && (
-                <p><strong>Nota Especial:</strong> {selectedOrder.nota_especial}</p>
-              )}
-            </div>
-
-            <div className="order-detail-section">
-              <h3>Información General</h3>
+              <p><strong>Total:</strong> {formatPrice(selectedOrder.total)}</p>
               <p><strong>Estado:</strong> <OrderStatusBadge status={selectedOrder.estado} /></p>
-              <p><strong>Fecha de Creación:</strong> {formatDate(selectedOrder.fecha_creacion || selectedOrder.fecha)}</p>
+              <p><strong>Fecha:</strong> {formatDate(selectedOrder.fecha)}</p>
             </div>
           </div>
         </Modal>

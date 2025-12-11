@@ -9,7 +9,7 @@ export const pedidosService = {
 
   // Get user orders
   async getUserOrders() {
-    const response = await apiClient.get('/pedidos');
+    const response = await apiClient.get('/api/pedidos');
     return response.data;
   },
 
@@ -25,9 +25,15 @@ export const pedidosService = {
     return response.data;
   },
 
+  // Admin: Get order by id
+  async getAdminOrderById(id) {
+    const response = await apiClient.get(`/admin/pedidos/${id}`);
+    return response.data;
+  },
+
   // Admin: Update order status
   async updateOrderStatus(id, status) {
-    const response = await apiClient.patch(`/admin/pedidos/${id}`, { estado: status });
+    const response = await apiClient.put(`/admin/pedidos/${id}/status`, { estado: status });
     return response.data;
   },
 };

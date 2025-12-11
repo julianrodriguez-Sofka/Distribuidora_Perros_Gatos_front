@@ -45,7 +45,7 @@
 }
 
 .toast-info {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--color-primary);
 }
 
 .toast-icon {
@@ -67,7 +67,7 @@
 }
 
 .toast-info .toast-icon {
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 .toast-message {
@@ -97,7 +97,7 @@
 }
 
 .toast-close:focus {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 4px;
 }

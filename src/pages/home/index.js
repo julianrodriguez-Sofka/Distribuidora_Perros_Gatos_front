@@ -9,6 +9,7 @@ import { ProductCard } from '../../components/ui';
 import Hero from '../../components/hero/Hero';
 import FeaturedSection from '../../components/featured/FeaturedSection';
 import SwiperCarousel from '../../components/carousel/SwiperCarousel';
+import CategoryFilters from '../../components/category-filters/CategoryFilters';
 import { toast } from '../../utils/toast';
 import './style.css';
 
@@ -51,6 +52,9 @@ export const HomePage = () => {
   const { catalog } = useSelector((state) => state.productos);
   const carousel = useSelector((state) => state.carousel);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [filteredCatalog, setFilteredCatalog] = useState({});
+  
   // Call both hooks unconditionally; prefer new CartContext when available
   const legacyCart = useCart();
   const ctx = useContext(CartContext);
@@ -65,10 +69,19 @@ export const HomePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    // Apply filter when activeFilter or catalog changes
+    if (!activeFilter) {
+      setFilteredCatalog(catalog);
+    } else {
+      filterCatalogByCategory(activeFilter);
+    }
+  }, [activeFilter, catalog]);
+
   const loadCatalog = async () => {
     try {
       setIsLoading(true);
-      const data = await productosService.getCatalog();
+      const data = await productosService.getCatalogPublic();
 
       // If backend returns an array of products, transform it into the
       // expected catalog shape: { categoryName: { subcategoryName: [products] } }
@@ -92,6 +105,7 @@ export const HomePage = () => {
             imagenUrl,
             stock: prod.cantidad_disponible ?? prod.stock ?? 0,
             peso: prod.peso_gramos ?? prod.peso ?? null,
+            categoriaId: prod.categoria?.id || prod.categoriaId,
           };
 
           acc[catName][subName].push(normalized);
@@ -108,9 +122,32 @@ export const HomePage = () => {
     }
   };
 
+  const filterCatalogByCategory = (categoryId) => {
+    const filtered = {};
+    
+    Object.entries(catalog).forEach(([categoryName, subcategories]) => {
+      Object.entries(subcategories).forEach(([subcategoryName, products]) => {
+        const filteredProducts = products.filter(
+          product => product.categoriaId === categoryId
+        );
+        
+        if (filteredProducts.length > 0) {
+          if (!filtered[categoryName]) filtered[categoryName] = {};
+          filtered[categoryName][subcategoryName] = filteredProducts;
+        }
+      });
+    });
+    
+    setFilteredCatalog(filtered);
+  };
+
+  const handleFilterChange = (categoryId) => {
+    setActiveFilter(categoryId);
+  };
+
   const loadCarousel = async () => {
     try {
-      const data = await carouselService.getCarousel();
+      const data = await carouselService.getCarouselPublic();
       // Normalize backend fields (imagen_url, link_url) to frontend shape (imagenUrl, enlaceUrl)
       const normalized = Array.isArray(data)
         ? data.map((item) => ({
@@ -146,16 +183,23 @@ export const HomePage = () => {
     <div className="home-page">
       <Hero />
 
-      {carouselImages.length > 0 && (
-        <section className="carousel-section" aria-label="Carrusel de promociones">
-          <SwiperCarousel images={carouselImages} />
-        </section>
-      )}
+      {/* Carrusel de imágenes destacado */}
+      <section className="carousel-section" aria-label="Carrusel de promociones">
+        <div className="container">
+          <SwiperCarousel images={carouselImages} showOverlay={true} />
+        </div>
+      </section>
 
       <FeaturedSection />
 
+      {/* Category Filters */}
+      <CategoryFilters 
+        onFilterChange={handleFilterChange}
+        activeFilter={activeFilter}
+      />
+
       <div className="catalog-container">
-        {Object.entries(catalog).map(([categoryName, subcategories]) => (
+        {Object.entries(filteredCatalog).map(([categoryName, subcategories]) => (
           <CategorySection
             key={categoryName}
             categoryName={categoryName}
@@ -165,10 +209,13 @@ export const HomePage = () => {
         ))}
       </div>
 
-      {Object.keys(catalog).length === 0 && (
+      {Object.keys(filteredCatalog).length === 0 && !isLoading && (
         <div className="empty-catalog">
-        
-          <p>No hay productos disponibles en este momento.</p>
+          <p>
+            {activeFilter 
+              ? 'No hay productos disponibles en esta categoría.' 
+              : 'No hay productos disponibles en este momento.'}
+          </p>
         </div>
       )}
     </div>

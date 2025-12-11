@@ -43,7 +43,7 @@
 
 .recover-button {
   margin-top: 8px;
-  background: #2563eb;
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 10px 14px;
@@ -59,7 +59,7 @@
 }
 
 .recover-link {
-  color: #2563eb;
+  color: var(--color-primary);
   text-decoration: none;
 }
 
